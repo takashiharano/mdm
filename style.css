@@ -1,0 +1,171 @@
+html,body {
+  width: calc(100% - 17px);
+  height: calc(100vh - 17px);
+  color: #333;
+  font-size: 22px;
+  font-family: Arial;
+}
+
+button,input[type="submit"] {
+  min-width: 90px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  background: #eee;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #ddd;
+}
+
+input[type="text"],input[type="password"],input[type="file"],textarea {
+  color: #333;
+  vertical-align: middle;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  outline: none;
+  font-size: 22px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+  transition: border linear 0.1s, box-shadow linear 0.1s;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+  border-color: #51a7e8;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.075),0 0px 5px rgba(81,167,232,0.5);
+}
+
+a {
+  color: #00f;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#master-name {
+  font-weight: bold;
+  font-size: 28px;
+}
+
+table.item-list,td.item-list,th.item-list {
+  border: 1px solid #888;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+tr.item-list:hover {
+  background: #eafaff;
+}
+
+th {
+  text-align: left;
+}
+
+.row-odd {
+  background: #fff;
+}
+
+.row-even {
+  background: #f5fcff;
+}
+
+.row-selected {
+  background: #ccffcc !important;
+}
+
+td.item-list {
+  padding-right: 16px;
+}
+
+.td-number {
+  text-align: right;
+}
+
+.list-icon {
+  width: 24px;
+}
+
+.required {
+  color: #f88;
+  cursor: default;
+}
+
+.validation {
+  color: #d66;
+  font-size: 14px;
+}
+
+.list-table {
+  width: 100%;
+}
+
+.list-op-button {
+  opacity: 0;
+  transition: all linear 0.1s;
+}
+
+.list-op-button:hover {
+  opacity: 1;
+}
+
+.menu-item-img {
+  height: 24px;
+  margin-right: 8px;
+}
+
+.list-tr {
+  cursor: pointer;
+}
+
+.icon-disabled {
+  opacity: 0.5;
+}
+
+#wrapper {
+  display: table;
+  position: relabsolute;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+#table-wrapper {
+  position; relative;
+  width: 100%;
+  height: 250px;
+  overflow: auto;
+}
+
+#data-detail-wrapper {
+  position; relative;
+  display; inline-block;
+  width: calc(100% - 16px);
+  max-height: 500px;
+  margin-top: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 8px;
+  overflow: auto;
+}
+
+#data-detail {
+  position; relative;
+  width: 100%;
+  height: 100%;
+}
+
+#iframe-map {
+  border: 1px solid #eee;
+}
+
+#fader{
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}

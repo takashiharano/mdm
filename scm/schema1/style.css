@@ -1,0 +1,15 @@
+.row-odd {
+  background: #fff;
+}
+
+.row-even {
+  background: #f5fcff;
+}
+
+.row-selected {
+  background: #ccffcc !important;
+}
+
+.item-list {
+  font-size: 20px;
+}

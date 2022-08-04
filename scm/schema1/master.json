@@ -1,0 +1,65 @@
+{
+  "product": {
+    "name": "Product",
+    "delivery": false,
+    "columns": [
+      {
+        "name": "id",
+        "display_name": "ID",
+        "type": "VARCHAR",
+        "length": 10,
+        "pkey": true
+      },
+      {
+        "name": "name",
+        "display_name": "Product Name",
+        "type": "VARCHAR",
+        "length": 100,
+        "required": true
+      },
+      {
+        "name": "price",
+        "display_name": "Price",
+        "type": "NUMBER",
+        "length": 13
+      }
+    ]
+  },
+  "customer": {
+    "name": "Customer",
+    "columns": [
+      {
+        "name": "id",
+        "display_name": "ID",
+        "type": "VARCHAR",
+        "length": 10,
+        "pkey": true
+      },
+      {
+        "name": "name",
+        "display_name": "Name",
+        "type": "VARCHAR",
+        "length": 50,
+        "required": true
+      },
+      {
+        "name": "phone",
+        "display_name": "Phone",
+        "type": "VARCHAR",
+        "length": 22
+      },
+      {
+        "name": "address",
+        "display_name": "Address",
+        "type": "VARCHAR",
+        "length": 100
+      },
+      {
+        "name": "mail",
+        "display_name": "Mail",
+        "type": "VARCHAR",
+        "length": 256
+      }
+    ]
+  }
+}
