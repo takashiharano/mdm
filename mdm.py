@@ -500,9 +500,9 @@ def delete_import_file(import_data_path):
 def init_screen(master_definition):
   util.send_result_json('OK', master_definition)
 
-def load_master_definition(scm_name):
+def load_master_definition(scm_name, default={}):
   path = get_master_definitin_path(scm_name)
-  return util.load_dict(path, {})
+  return util.load_dict(path, default)
 
 def get_master_definitin_path(scm_name):
   return util.join_path(BASE_PATH, 'scm/') + scm_name + '/master.json'
@@ -556,15 +556,17 @@ def exec_batch(batch_name, scm_name, master_name):
   if batch_name == 'import_data':
     result = import_data_batch(scm_name, master_name)
   else:
-    result = 'Illegal batch name'
+    result = 'ERR: Illegal batch name'
   print(result)
 
 #----------------------------------------------------------
 def import_data_batch(scm_name, master_name):
-  all_master_definition = load_master_definition(scm_name)
+  all_master_definition = load_master_definition(scm_name, None)
+  if all_master_definition is None:
+    return 'ERR: No shch schema (' + scm_name + ')'
 
   if not master_name in all_master_definition:
-    return 'NO_SUCH_MASTER (' + master_name + ')'
+    return 'ERR: No such master (' + master_name + ')'
 
   master_definition = all_master_definition[master_name]
   master_definition['id'] = master_name
@@ -572,7 +574,7 @@ def import_data_batch(scm_name, master_name):
 
   ret = do_import_records(scm_name, master_definition, data_path)
   if ret is None:
-    result = 'ERR_READ_IMPORT_DATA'
+    result = 'ERR: IMPORT_DATA_READ_ERROR'
   else:
     result = 'OK: Created=' + str(ret['count_created']) + ' Updated=' + str(ret['count_updated']) 
 
