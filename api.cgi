@@ -14,7 +14,7 @@ import mdm
 
 #----------------------------------------------------------
 def main():
-  mdm.exec_action()
+    mdm.exec_action()
 
 if __name__ == '__main__':
-  main()
+    main()

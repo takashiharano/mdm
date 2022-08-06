@@ -14,7 +14,7 @@ import mdm
 
 #----------------------------------------------------------
 def print_html(scm_name):
-  html = '''
+    html = '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,8 +29,8 @@ def print_html(scm_name):
 <script>
 $onReady = function() {
 '''
-  html += "mdm.config.init('" + scm_name + "');"
-  html += '''
+    html += "mdm.config.init('" + scm_name + "');"
+    html += '''
 };
 </script>
 <style>
@@ -52,9 +52,9 @@ $onReady = function() {
   <div id="content">
     <div style="position:relative;margin-bottom:4px;">
 '''
-  html += '  <a href="./?scm=' + scm_name + '"><img src="./img/home.png" data-tooltip="Home"></a>'
+    html += '  <a href="./?scm=' + scm_name + '"><img src="./img/home.png" data-tooltip="Home"></a>'
 
-  html += '''
+    html += '''
     <span style="position:absolute;right:8px;">
       <button onclick="mdm.config.save();">Save</button>
     </span>
@@ -67,45 +67,45 @@ $onReady = function() {
 </body>
 </html>
 '''
-  util.send_response('html', html)
+    util.send_response('html', html)
 
 #----------------------------------------------------------
 def get_definition(scm_name):
-  if scm_name == '':
-    path = mdm.get_schema_definitin_path()
-  else:
-    path = mdm.get_master_definitin_path(scm_name)
+    if scm_name == '':
+        path = mdm.get_schema_definitin_path()
+    else:
+        path = mdm.get_master_definitin_path(scm_name)
 
-  try:
-    text = util.read_text_file(path)
-  except:
-    text = ''
-  b64text = util.encode_base64(text)
-  util.send_result_json('OK', b64text)
+    try:
+        text = util.read_text_file(path)
+    except:
+        text = ''
+    b64text = util.encode_base64(text)
+    util.send_result_json('OK', b64text)
 
 #----------------------------------------------------------
 def save_definition(scm_name):
-  if scm_name == '':
-    path = mdm.get_schema_definitin_path()
-  else:
-    path = mdm.get_master_definitin_path(scm_name)
+    if scm_name == '':
+        path = mdm.get_schema_definitin_path()
+    else:
+        path = mdm.get_master_definitin_path(scm_name)
 
-  b64text = util.get_request_param('text', '')
-  text = util.decode_base64(b64text)
-  util.write_text_file(path, text)
-  util.send_result_json('OK', None)
+    b64text = util.get_request_param('text', '')
+    text = util.decode_base64(b64text)
+    util.write_text_file(path, text)
+    util.send_result_json('OK', None)
 
 #----------------------------------------------------------
 def main():
-  scm_name = util.get_request_param('scm', '')
-  action = util.get_request_param('action', '')
+    scm_name = util.get_request_param('scm', '')
+    action = util.get_request_param('action', '')
 
-  if action == 'getdef':
-    get_definition(scm_name)
-  elif action == 'save':
-    save_definition(scm_name)
-  else:
-    print_html(scm_name)
+    if action == 'getdef':
+        get_definition(scm_name)
+    elif action == 'save':
+        save_definition(scm_name)
+    else:
+        print_html(scm_name)
 
 if __name__ == '__main__':
   main()

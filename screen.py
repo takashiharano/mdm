@@ -15,15 +15,15 @@ import mdm
 
 #----------------------------------------------------------
 def print_top_page_html():
-  has_error = False
-  try:
-    schema_definition_list = mdm.load_schema_definition_list()
-  except:
-    has_error = True
+    has_error = False
+    try:
+        schema_definition_list = mdm.load_schema_definition_list()
+    except:
+        has_error = True
 
-  title = 'MDM'
-  html = get_html_header(title)
-  html += '''
+    title = 'MDM'
+    html = get_html_header(title)
+    html += '''
 <style>
 #wrapper {
   position: relative;
@@ -75,22 +75,22 @@ $onReady = function() {
 <span style="font-size:32px;">MDM</span>
 <div style="margin-top:24px;">
 '''
-  if has_error:
-    html += '<span style="color:#e22;font-size:16px;">SCHEMA_LIST_LOAD_ERROR</span>'
-  else:
-    for scm_name in schema_definition_list:
-      schema_definition = schema_definition_list[scm_name]
-      display_name = schema_definition['name']
-      html += '<img src="./img/db2.png" class="menu-item-img"><a href="./?scm=' + scm_name + '">' + display_name + '</a><br>'
+    if has_error:
+        html += '<span style="color:#e22;font-size:16px;">SCHEMA_LIST_LOAD_ERROR</span>'
+    else:
+        for scm_name in schema_definition_list:
+            schema_definition = schema_definition_list[scm_name]
+            display_name = schema_definition['name']
+            html += '<img src="./img/db2.png" class="menu-item-img"><a href="./?scm=' + scm_name + '">' + display_name + '</a><br>'
 
-  html += '''</div>
+    html += '''</div>
 <div style="margin-top:24px;font-size:16px;">
 </div>
 
 <div style="margin-top:24px;font-size:16px;">
 '''
-  html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./config.cgi">Shema config</a><br>'
-  html += '''
+    html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./config.cgi">Shema config</a><br>'
+    html += '''
 </div>
 </div>
 </div>
@@ -113,19 +113,19 @@ api.cgi?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=get&pkey=&lt;PKEY&gt;
 </body>
 </html>
 '''
-  send_html(html)
+    send_html(html)
 
 #----------------------------------------------------------
 def print_master_menu_html(scm_name):
-  has_error = False
-  try:
-    all_master_definition = mdm.load_master_definition(scm_name)
-  except:
-    has_error = True
+    has_error = False
+    try:
+        all_master_definition = mdm.load_master_definition(scm_name)
+    except:
+        has_error = True
 
-  title = 'Master List (' + scm_name + ')'
-  html = get_html_header(title)
-  html += '''
+    title = 'Master List (' + scm_name + ')'
+    html = get_html_header(title)
+    html += '''
 <style>
 #wrapper {
   position: relative;
@@ -148,9 +148,9 @@ def print_master_menu_html(scm_name):
 <script>
 $onReady = function() {
 '''
-  html += "mdm.scmId = '" + scm_name + "';"
-  html += '''
-  mdm.fadeInScreen();
+    html += "mdm.scmId = '" + scm_name + "';"
+    html += '''
+    mdm.fadeInScreen();
 };
 </script>
 <body>
@@ -164,27 +164,27 @@ $onReady = function() {
 <span style="font-size:32px;">Master Data</span>
 <div style="margin-top:24px;">
 '''
-  if has_error:
-    html += '<span style="color:#e22;font-size:16px;">MASTER_SCHEMA_LOAD_ERROR</span>'
-  else:
-    for  master_name in all_master_definition:
-      master_definition = all_master_definition[master_name]
-      display_name = master_definition['name']
-      html += '<img src="./img/sheet.png" class="menu-item-img"><a href="./?scm=' + scm_name + '&master=' + master_name + '">' + display_name + '</a><br>'
+    if has_error:
+        html += '<span style="color:#e22;font-size:16px;">MASTER_SCHEMA_LOAD_ERROR</span>'
+    else:
+        for  master_name in all_master_definition:
+            master_definition = all_master_definition[master_name]
+            display_name = master_definition['name']
+            html += '<img src="./img/sheet.png" class="menu-item-img"><a href="./?scm=' + scm_name + '&master=' + master_name + '">' + display_name + '</a><br>'
 
-  html += '''</div>
+    html += '''</div>
 <div style="margin-top:24px;font-size:16px;">
 '''
-  html += '<img src="./img/folder.png" class="menu-item-img" style="height:16px;"><a href="./scm/' + scm_name + '/dexp/">Browse Data Exchange Points</a>'
-  html += '<span class="pseudo-link" onclick="mdm.cleanDexp();" style="margin-left:8px;color:#00f;font-size:13px;"><img src="./img/delete.png" style="height:16px;" data-tooltip="Clear"></span>'
-  html += '<br>'
-  html += '''
+    html += '<img src="./img/folder.png" class="menu-item-img" style="height:16px;"><a href="./scm/' + scm_name + '/dexp/">Browse Data Exchange Points</a>'
+    html += '<span class="pseudo-link" onclick="mdm.cleanDexp();" style="margin-left:8px;color:#00f;font-size:13px;"><img src="./img/delete.png" style="height:16px;" data-tooltip="Clear"></span>'
+    html += '<br>'
+    html += '''
 </div>
 
 <div style="margin-top:24px;font-size:16px;">
 '''
-  html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./config.cgi?scm=' + scm_name + '">Master config</a><br>'
-  html += '''
+    html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./config.cgi?scm=' + scm_name + '">Master config</a><br>'
+    html += '''
 </div>
 
 </div>
@@ -193,31 +193,31 @@ $onReady = function() {
 </body>
 </html>
 '''
-  send_html(html)
+    send_html(html)
 
 #----------------------------------------------------------
 def print_master_html(scm_name, master_name):
-  title = 'Master (' + scm_name + ':' + master_name + ')'
+    title = 'Master (' + scm_name + ':' + master_name + ')'
 
-  all_master_definition = mdm.load_master_definition(scm_name)
-  master_definition = all_master_definition[master_name]
+    all_master_definition = mdm.load_master_definition(scm_name)
+    master_definition = all_master_definition[master_name]
 
-  delivery_enable = 'false'
-  if 'delivery' in master_definition and master_definition['delivery']:
-    delivery_enable = 'true'
+    delivery_enable = 'false'
+    if 'delivery' in master_definition and master_definition['delivery']:
+        delivery_enable = 'true'
 
-  html = get_html_header(title, scm_name)
-  html += '''
+    html = get_html_header(title, scm_name)
+    html += '''
 <script>
 $onReady = function() {
 '''
-  html += "mdm.init('" + scm_name + "', '" + master_name + "');"
-  html += '''
-  mdm.fadeInScreen();
+    html += "mdm.init('" + scm_name + "', '" + master_name + "');"
+    html += '''
+    mdm.fadeInScreen();
 };
 '''
-  html += 'mdm.deliveryEnable = ' + delivery_enable + ';'
-  html += '''
+    html += 'mdm.deliveryEnable = ' + delivery_enable + ';'
+    html += '''
 </script>
 <style>
 #content {
@@ -233,34 +233,34 @@ $onReady = function() {
   <div id="content">
     <div style="margin-bottom:20px;">
 '''
-  html += '  <a href="./?scm=' + scm_name + '"><img src="./img/return.png"></a>'
+    html += '  <a href="./?scm=' + scm_name + '"><img src="./img/return.png"></a>'
 
-  if mdm.master_exists(scm_name, master_name):
-    html += '''
-    </div>
-    <div style="margin-bottom:10px;">
-    <span id="master-name"></span>
-    </div>
-    <div style="margin-bottom:10px;">
-    <span class="pseudo-link" onclick="mdm.create();"><img src="./img/plus.png" data-tooltip="New"></span>
-    <span class="pseudo-link" onclick="mdm.reload();"><img src="./img/reload.png" data-tooltip="Reload"></span>
+    if mdm.master_exists(scm_name, master_name):
+        html += '''
+      </div>
+      <div style="margin-bottom:10px;">
+      <span id="master-name"></span>
+      </div>
+      <div style="margin-bottom:10px;">
+      <span class="pseudo-link" onclick="mdm.create();"><img src="./img/plus.png" data-tooltip="New"></span>
+      <span class="pseudo-link" onclick="mdm.reload();"><img src="./img/reload.png" data-tooltip="Reload"></span>
 
-    <span style="position:absolute;right:4px;">
-      <span class="pseudo-link" onclick="mdm.upload();"><img src="./img/upload.png" data-tooltip="Upload"></span>
-      <span class="pseudo-link" onclick="mdm.import();"><img src="./img/import.png" data-tooltip="Import"></span>
-      <span style="margin-left:10px;">
-        <span class="pseudo-link" onclick="mdm.export();"><img src="./img/export.png" data-tooltip="Export"></span>
-      </span>
+      <span style="position:absolute;right:4px;">
+        <span class="pseudo-link" onclick="mdm.upload();"><img src="./img/upload.png" data-tooltip="Upload"></span>
+        <span class="pseudo-link" onclick="mdm.import();"><img src="./img/import.png" data-tooltip="Import"></span>
+        <span style="margin-left:10px;">
+          <span class="pseudo-link" onclick="mdm.export();"><img src="./img/export.png" data-tooltip="Export"></span>
+        </span>
 '''
 
-    if delivery_enable == 'true':
-      html += '''
+        if delivery_enable == 'true':
+            html += '''
       <span style="margin-left:10px;">
         <span class="pseudo-link" onclick="mdm.exportToUpstream();"><img src="./img/shipping.png" id="shipping-icon" data-tooltip="New Delivery\nCreates the selected item(s) in the upstream system."></span>
       </span>
     '''
 
-    html += '''
+        html += '''
     </span>
     </div>
     <div id="table-wrapper">
@@ -270,10 +270,10 @@ $onReady = function() {
       <div id="data-detail"></div>
     </div>
 '''
-  else:
-    html += '<span style="margin-left:16px;">ERR_NO_SUCH_MASTER (' + master_name + ')</span>'
+    else:
+        html += '<span style="margin-left:16px;">ERR_NO_SUCH_MASTER (' + master_name + ')</span>'
 
-  html += '''
+    html += '''
   </div>
 </div>
 </div>
@@ -281,34 +281,34 @@ $onReady = function() {
 </html>
 '''
 
-  send_html(html)
+    send_html(html)
 
 #----------------------------------------------------------
 def get_html_header(title, scm_name=None):
-  html = '''<!DOCTYPE html>
+    html = '''<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta charset="utf-8">
 <meta name="robots" content="none">
 '''
-  html += '<title>' + title + '</title>';
-  html += '''
+    html += '<title>' + title + '</title>';
+    html += '''
 <link rel="stylesheet" href="./style.css" />
 '''
-  if not scm_name is None:
-    html += '<link rel="stylesheet" href="./scm/' + scm_name + '/style.css" />'
+    if not scm_name is None:
+        html += '<link rel="stylesheet" href="./scm/' + scm_name + '/style.css" />'
 
-  html += '''
+    html += '''
 <script src="https://debugjs.net/debug.js"></script>
 <script src="../libs/util.js"></script>
 <script src="./mdm.js"></script>
 '''
-  return html
+    return html
 
 #----------------------------------------------------------
 def print_auth_redirect_html():
-  html = '''<!DOCTYPE html>
+    html = '''<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -327,35 +327,35 @@ def print_auth_redirect_html():
 #websys.init('../');
 #</script>
 
-  heml += '''</head>
+    heml += '''</head>
 <body>
 </body>
 </html>
 '''
-  send_html(html)
+    send_html(html)
 
 #----------------------------------------------------------
 def send_html(html):
-  headers = [
-    {
-      'Cache-Control': 'no-cache'
-    }
-  ]
-  util.send_response('html', html, headers=headers)
+    headers = [
+        {
+            'Cache-Control': 'no-cache'
+        }
+    ]
+    util.send_response('html', html, headers=headers)
 
 #----------------------------------------------------------
 def main():
 #  web.on_access()
 #  if not authman.auth(default=False, allow_guest=True):
-#    print_auth_redirect_html()
-#    return
+#      print_auth_redirect_html()
+#      return
 
-  scm_name = util.get_request_param('scm', '')
-  master_name = util.get_request_param('master', '')
+    scm_name = util.get_request_param('scm', '')
+    master_name = util.get_request_param('master', '')
 
-  if scm_name == '':
-    print_top_page_html()
-  elif master_name == '':
-    print_master_menu_html(scm_name)
-  else:
-    print_master_html(scm_name, master_name)
+    if scm_name == '':
+        print_top_page_html()
+    elif master_name == '':
+        print_master_menu_html(scm_name)
+    else:
+        print_master_html(scm_name, master_name)
