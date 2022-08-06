@@ -12,6 +12,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ROOT_DIR + 'libs'))
 import util
 import bsb64
 
+BASE_PATH = '.'
+
 EXTENSION_ENABLED = False
 if EXTENSION_ENABLED:
   import mdm_ex
@@ -422,6 +424,16 @@ def import_records(scm_name, master_definition, data_path):
   start = 1
   if util.is_int(p_start):
     start = int(p_start)
+
+  result = do_import_records(scm_name, master_definition, data_path, start)
+
+  status = 'OK'
+  if result is None:
+    status = 'ERR_READ_IMPORT_DATA'
+
+  util.send_result_json(status, result)
+
+def do_import_records(scm_name, master_definition, data_path, start=2):
   start = start - 1
   if start < 0:
     start = 0
@@ -432,8 +444,7 @@ def import_records(scm_name, master_definition, data_path):
   try:
     new_data_list = get_data_list(import_data_path)
   except:
-    util.send_result_json('ERR_READ_IMPORT_DATA', None)
-    return
+    return None
 
   count_created = 0
   count_updated = 0
@@ -459,11 +470,10 @@ def import_records(scm_name, master_definition, data_path):
     'count_created': count_created,
     'count_updated': count_updated
   }
-
-  util.send_result_json('OK', result)
+  return result
 
 def get_dexp_path(scm_name):
-  path = './scm/' + scm_name + '/dexp/'
+  path = util.join_path(BASE_PATH, 'scm/') + scm_name + '/dexp/'
   return path
 
 #----------------------------------------------------------
@@ -495,7 +505,7 @@ def load_master_definition(scm_name):
   return util.load_dict(path, {})
 
 def get_master_definitin_path(scm_name):
-  return './scm/' + scm_name + '/master.json'
+  return util.join_path(BASE_PATH, 'scm/') + scm_name + '/master.json'
 
 #----------------------------------------------------------
 def load_schema_definition_list():
@@ -532,6 +542,43 @@ def master_exists(scm_name, master_name):
   return False
 
 #----------------------------------------------------------
+def get_data_path(scm_name, master_name):
+  data_path = util.join_path(BASE_PATH, 'scm/') + scm_name + '/mst_' + master_name + '/data.txt'
+  return data_path
+
+#----------------------------------------------------------
+def set_base_path(path):
+  global BASE_PATH
+  BASE_PATH = path
+
+#----------------------------------------------------------
+def exec_batch(batch_name, scm_name, master_name):
+  if batch_name == 'import_data':
+    result = import_data_batch(scm_name, master_name)
+  else:
+    result = 'Illegal batch name'
+  print(result)
+
+#----------------------------------------------------------
+def import_data_batch(scm_name, master_name):
+  all_master_definition = load_master_definition(scm_name)
+
+  if not master_name in all_master_definition:
+    return 'NO_SUCH_MASTER (' + master_name + ')'
+
+  master_definition = all_master_definition[master_name]
+  master_definition['id'] = master_name
+  data_path = get_data_path(scm_name, master_name)
+
+  ret = do_import_records(scm_name, master_definition, data_path)
+  if ret is None:
+    result = 'ERR_READ_IMPORT_DATA'
+  else:
+    result = 'OK: Created=' + str(ret['count_created']) + ' Updated=' + str(ret['count_updated']) 
+
+  return result
+
+#----------------------------------------------------------
 def exec_action():
   scm_name = util.get_request_param('scm', '')
   if scm_name == '':
@@ -554,7 +601,7 @@ def exec_action():
 
   master_definition = all_master_definition[master_name]
   master_definition['id'] = master_name
-  data_path = './scm/' + scm_name + '/mst_' + master_name + '/data.txt'
+  data_path = get_data_path(scm_name, master_name)
 
   if action == 'get':
     get_record(master_definition, data_path)
