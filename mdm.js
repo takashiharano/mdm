@@ -621,25 +621,35 @@ mdm.showRecord = function(record, mode) {
   var html = '';
   html += '<div style="position:relative;height:1em;">';
 
-  html += '<span class="pseudo-link"';
-  clz = ' icon-disabled';
-  if ((mode == 'new') || (record && (mode == 'edit'))) {
-    clz = '';
-    html += ' onclick="mdm.collectFromUpstream(';
-    if (pkey) {
-      html += '\'' + pkey + '\'';
-    }
-    html += ');"';
-  }
-
   if (mdm.deliveryEnable) {
-    html += ' style="margin-left:2px;">';
+    html += '<span class="pseudo-link"';
+    clz = ' icon-disabled';
+    if ((mode == 'new') || (record && (mode == 'edit'))) {
+      clz = '';
+      html += ' onclick="mdm.collectFromUpstream(';
+      if (pkey) {
+        html += '\'' + pkey + '\'';
+      }
+      html += ');"';
+    }
+    html += ' style="margin-left:2px;margin-right:8px;">';
     html += '<img src="./img/delivery.png" id="delivery-from-icon" class="list-icon' + clz + '" data-tooltip="Collection from upstream">';
     html += '</span>';
   }
 
   if (mode =='loading') {
     html += '<span class="progdot">Loading</span>';
+  }
+
+  if (record) {
+    var createDate = parseInt(record['create_date']);
+    var lastUpdateDate = parseInt(record['last_update_date']);
+    var sCreateDate = util.getDateTimeString(createDate, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    var sLastUpdateDate = util.getDateTimeString(lastUpdateDate, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    html += '<span style="font-size:14px;color:#888;">';
+    html += '<span>Created: ' + sCreateDate + '</span>';
+    html += '<span style="margin-left:12px;">Last Updated: ' + sLastUpdateDate+ '</span>';
+    html += '</span>';
   }
 
   html += '<span style="position:absolute;right:8px;">';

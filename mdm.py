@@ -20,6 +20,34 @@ if EXTENSION_ENABLED:
 
 AUTO_INCREMENT = '[auto]'
 
+SYSTEM_COLUMN = [
+  {
+    'name': 'create_date',
+    'display_name': 'Create Date',
+    'type': 'DATE'
+  },
+  {
+    'name': 'created_by',
+    'display_name': 'Created By',
+    'type': 'VARCHAR'
+  },
+  {
+    'name': 'last_update_date',
+    'display_name': 'Last Update Date',
+    'type': 'DATE'
+  },
+  {
+    'name': 'updated_by',
+    'display_name': 'Updated By',
+    'type': 'VARCHAR'
+  },
+  {
+    'name': 'data_status',
+    'display_name': 'Data Status',
+    'type': 'VARCHAR'
+  }
+]
+
 #----------------------------------------------------------
 def get_pkey_value(master_definition, record):
   pkey_col_name_list = get_pkey_col_name_list(master_definition)
@@ -60,11 +88,12 @@ def get_data_list(path):
 
 #----------------------------------------------------------
 def get_next_id(data_list):
+  MASTER_COLUMN_START_INDEX = 5
   ids = []
   for i in range(len(data_list)):
     data = data_list[i]
     fields = data.split('\t')
-    id = fields[0]
+    id = fields[MASTER_COLUMN_START_INDEX]
 
     if util.is_int(id):
       n = int(id)
@@ -92,7 +121,7 @@ def record_exists(master_definition, data_list, pkey):
   return False
 
 #----------------------------------------------------------
-def export(scm_name, master_definition, data_path):
+def export_data(scm_name, master_definition, data_path):
   separator = util.get_request_param('separator', '')
   if separator == 'comma':
     sep = ','
@@ -115,7 +144,7 @@ def export(scm_name, master_definition, data_path):
     fields = data.split('\t')
     record = build_record_dict(master_definition, fields)
     record = cleanse_data_for_export(col_defs, record)
-    line = build_record_in_text_line(col_defs, record, sep)
+    line = build_record_in_text_line(col_defs, record, sep, False)
     out_list.append(line)
 
   text = util.list2text(out_list, line_sep='\r\n')
@@ -173,23 +202,47 @@ def upload(scm_name, master_definition):
   util.send_response('text', result);
 
 #----------------------------------------------------------
-def build_record_dict(master_definition, fields):
-  col_defs = master_definition['columns']
+def build_record_dict(master_definition, fields, without_sysdata=False):
   record = {}
+
+  if not without_sysdata:
+    for i in range(len(SYSTEM_COLUMN)):
+      col_def = SYSTEM_COLUMN[i]
+      col_name = col_def['name']
+      value = fields[i]
+      record[col_name] = value
+
+    field_index = i + 1
+  else:
+    field_index = 0
+
+  col_defs = master_definition['columns']
   for i in range(len(col_defs)):
     col_def = col_defs[i]
     col_name = col_def['name']
     if i < len(fields):
-      value = fields[i]
+      value = fields[field_index]
       value = util.replace(value, '"(?!")', '')
     else:
       value = ''
     record[col_name] = value
+    field_index = field_index + 1
   return record
 
 #----------------------------------------------------------
-def build_record_in_text_line(col_defs, data, sep='\t'):
+def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True):
   line = ''
+  if include_system_data:
+    line += str(data['create_date'])
+    line += sep
+    line += data['created_by']
+    line += sep
+    line += str(data['last_update_date'])
+    line += sep
+    line += data['updated_by']
+    line += sep
+    line += data['data_status']
+
   for i in range(len(col_defs)):
     col_def = col_defs[i]
     col_name = col_def['name']
@@ -198,9 +251,9 @@ def build_record_in_text_line(col_defs, data, sep='\t'):
     if util.match(value, sep):
       value = util.quote_csv_field(value, '"')
 
-    if i > 0:
-      line += sep
+    line += sep
     line += value
+
   return line
 
 #----------------------------------------------------------
@@ -256,13 +309,41 @@ def get_record(master_definition, data_path):
 
   util.send_result_json(status, target_record)
 
+
+#----------------------------------------------------------
+def tsv_to_system_column_dict(tsv_fields):
+  data = {}
+  data['create_date'] = tsv_fields[0]
+  data['created_by'] = tsv_fields[1]
+  data['last_update_date'] = tsv_fields[2]
+  data['updated_by'] = tsv_fields[3]
+  data['data_status'] = tsv_fields[4]
+  return data
+
+#----------------------------------------------------------
+def build_system_column_data(data=None, user='', data_status=None):
+  now = util.get_timestamp_in_millis()
+  if data is None:
+    data = {}
+    data['create_date'] = now
+    data['created_by'] = user
+    data['last_update_date'] = now
+    data['updated_by'] = user
+    data['data_status'] = '1'
+  else:
+    data['last_update_date'] = now
+    data['updated_by'] = user
+    if data_status is not None:
+      data['data_status'] = data_status
+
+  return data
+
 #----------------------------------------------------------
 def create(master_definition, data_path):
   col_defs = master_definition['columns']
   status = 'OK'
 
   new_data = {}
-  record = {}
   for i in range(len(col_defs)):
     col_def = col_defs[i]
     col_name = col_def['name']
@@ -270,11 +351,11 @@ def create(master_definition, data_path):
 
   data_list = get_data_list(data_path)
 
-  try:
-    new_list = insert_data(master_definition, data_list, new_data)
-    commit(data_path, new_list)
-  except Exception as e:
-    status = 'CREATE_ERROR_' + str(e)
+  #try:
+  new_list = insert_data(master_definition, data_list, new_data)
+  commit(data_path, new_list)
+  #except Exception as e:
+  #  status = 'CREATE_ERROR_' + str(e)
 
   pkey = get_pkey_value(master_definition, new_data)
 
@@ -283,6 +364,9 @@ def create(master_definition, data_path):
 #----------------------------------------------------------
 def insert_data(master_definition, data_list, new_data):
   col_defs = master_definition['columns']
+
+  system_data = build_system_column_data(None, 'anonymous')
+  new_data = combine_system_and_master_column_values(system_data, new_data)
 
   target_pkey = get_pkey_value(master_definition, new_data)
   pkey_values = get_pkey_values(master_definition, new_data)
@@ -335,21 +419,24 @@ def update(master_definition, data_path):
   util.send_result_json(status, pkey)
 
 #----------------------------------------------------------
-def update_data(master_definition, data_list, new_data):
+def update_data(master_definition, data_list, data_to_update):
   col_defs = master_definition['columns']
 
-  target_pkey = get_pkey_value(master_definition, new_data)
+  target_pkey = get_pkey_value(master_definition, data_to_update)
 
   new_list = []
   for i in range(len(data_list)):
     data = data_list[i]
     fields = data.split('\t')
 
-    record = build_record_dict(master_definition, fields)
-    pkey = get_pkey_value(master_definition, record)
+    existing_record = build_record_dict(master_definition, fields)
+    pkey = get_pkey_value(master_definition, existing_record)
 
     if pkey == target_pkey:
-      new_data = cleanse_data(master_definition, new_data)
+      # update the data
+      data_to_update = cleanse_data(master_definition, data_to_update)
+      system_data = build_system_column_data(existing_record, 'anonymous')
+      new_data = combine_system_and_master_column_values(system_data, data_to_update)
       new_record = build_record_in_text_line(col_defs, new_data)
       new_list.append(new_record)
     else:
@@ -358,8 +445,15 @@ def update_data(master_definition, data_list, new_data):
   return new_list
 
 #----------------------------------------------------------
+def combine_system_and_master_column_values(system_data, master_data):
+  new_data = system_data
+  for key in master_data:
+    new_data[key] = master_data[key]
+  return new_data
+
+#----------------------------------------------------------
 def cleanse_data(master_definition, data):
-  new_data = {}
+  new_data = data
   col_defs = master_definition['columns']
   for i in range(len(col_defs)):
     col_def = col_defs[i]
@@ -426,15 +520,12 @@ def import_records(scm_name, master_definition, data_path):
     start = int(p_start)
 
   status = 'OK'
-  try:
-    result = do_import_records(scm_name, master_definition, data_path, start)
-  except Exception as e:
-    result = None
-    exception_msg = str(e)
-    if exception_msg == 'IMPORT_FILE_NOT_FOUND':
+  result = do_import_records(scm_name, master_definition, data_path, start)
+  if result['status'] != 'OK':
+    if result['status'] == 'IMPORT_FILE_NOT_FOUND':
       status = 'OK:IMPORT_FILE_NOT_FOUND'
     else:
-      status = exception_msg
+      status = result['status']
 
   util.send_result_json(status, result)
 
@@ -447,19 +538,23 @@ def do_import_records(scm_name, master_definition, data_path, start=2):
 
   import_data_path = get_import_data_path(scm_name, master_definition)
   if not util.path_exists(import_data_path):
-    raise Exception('IMPORT_FILE_NOT_FOUND')
+    return {
+      'status': 'IMPORT_FILE_NOT_FOUND'
+    }
 
   try:
     new_data_list = get_data_list(import_data_path)
   except:
-    raise Exception('DATA_FILE_READ_ERROR')
+    return {
+      'status': 'DATA_FILE_READ_ERROR'
+    }
 
   count_created = 0
   count_updated = 0
   for i in range(start, len(new_data_list)):
     new_data = new_data_list[i]
     fields = new_data.split('\t')
-    new_data = build_record_dict(master_definition, fields)
+    new_data = build_record_dict(master_definition, fields, True)
 
     pkey = get_pkey_value(master_definition, new_data)
 
@@ -475,6 +570,7 @@ def do_import_records(scm_name, master_definition, data_path, start=2):
   delete_import_file(import_data_path)
 
   result = {
+    'status': 'OK',
     'count_created': count_created,
     'count_updated': count_updated
   }
@@ -632,7 +728,7 @@ def exec_action():
   elif action == 'delete':
     delete(master_definition, data_path)
   elif action == 'export':
-    export(scm_name, master_definition, data_path)
+    export_data(scm_name, master_definition, data_path)
   elif action == 'import':
     import_records(scm_name, master_definition, data_path)
   elif action == 'upload':
