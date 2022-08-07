@@ -583,7 +583,7 @@ def import_data_batch(scm_name, master_name):
   status = 'OK'
   try:
     ret = do_import_records(scm_name, master_definition, data_path)
-    detal = 'Created=' + str(ret['count_created']) + ' Updated=' + str(ret['count_updated']) 
+    detail = 'Created=' + str(ret['count_created']) + ' Updated=' + str(ret['count_updated']) 
   except Exception as e:
     exception_msg = str(e)
     if exception_msg == 'IMPORT_FILE_NOT_FOUND':
