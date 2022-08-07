@@ -23,7 +23,6 @@ def print_html(scm_name):
 <meta name="robots" content="none">
 <title></title>
 <link rel="stylesheet" href="./style.css" />
-<script src="https://debugjs.net/debug.js"></script>
 <script src="../libs/util.js"></script>
 <script src="./mdm.js"></script>
 <script>
