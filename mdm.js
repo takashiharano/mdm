@@ -293,11 +293,9 @@ mdm.importCb = function(xhr, res) {
     var result = res.body;
     var createdCount = result['count_created'];
     var updatedCount = result['count_updated'];
-    if ((createdCount == 0) && (updatedCount == 0)) {
+    msg += ': Created=' + createdCount + ' Updated=' + updatedCount;
+  } else if (res.status == 'OK:IMPORT_FILE_NOT_FOUND') {
       msg = 'No records to import';
-    } else {
-      msg += ': Created=' + createdCount + ' Updated=' + updatedCount;
-    }
   } else {
     msg = 'Error: ';
     if (xhr.status != 200) {

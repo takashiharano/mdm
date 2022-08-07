@@ -425,11 +425,16 @@ def import_records(scm_name, master_definition, data_path):
   if util.is_int(p_start):
     start = int(p_start)
 
-  result = do_import_records(scm_name, master_definition, data_path, start)
-
   status = 'OK'
-  if result is None:
-    status = 'ERR_READ_IMPORT_DATA'
+  try:
+    result = do_import_records(scm_name, master_definition, data_path, start)
+  except Exception as e:
+    result = None
+    exception_msg = str(e)
+    if exception_msg == 'IMPORT_FILE_NOT_FOUND':
+      status = 'OK:IMPORT_FILE_NOT_FOUND'
+    else:
+      status = exception_msg
 
   util.send_result_json(status, result)
 
@@ -441,10 +446,13 @@ def do_import_records(scm_name, master_definition, data_path, start=2):
   data_list = get_data_list(data_path)
 
   import_data_path = get_import_data_path(scm_name, master_definition)
+  if not util.path_exists(import_data_path):
+    raise Exception('IMPORT_FILE_NOT_FOUND')
+
   try:
     new_data_list = get_data_list(import_data_path)
   except:
-    return None
+    raise Exception('DATA_FILE_READ_ERROR')
 
   count_created = 0
   count_updated = 0
@@ -556,27 +564,35 @@ def exec_batch(batch_name, scm_name, master_name):
   if batch_name == 'import_data':
     result = import_data_batch(scm_name, master_name)
   else:
-    result = 'ERR: Illegal batch name'
+    result = '[ERR] Illegal batch name'
   print(result)
 
 #----------------------------------------------------------
 def import_data_batch(scm_name, master_name):
   all_master_definition = load_master_definition(scm_name, None)
   if all_master_definition is None:
-    return 'ERR: No shch schema (' + scm_name + ')'
+    return '[ERR] No shch schema (' + scm_name + ')'
 
   if not master_name in all_master_definition:
-    return 'ERR: No such master (' + master_name + ')'
+    return '[ERR] No such master (' + master_name + ')'
 
   master_definition = all_master_definition[master_name]
   master_definition['id'] = master_name
   data_path = get_data_path(scm_name, master_name)
 
-  ret = do_import_records(scm_name, master_definition, data_path)
-  if ret is None:
-    result = 'ERR: IMPORT_DATA_READ_ERROR'
-  else:
-    result = 'OK: Created=' + str(ret['count_created']) + ' Updated=' + str(ret['count_updated']) 
+  status = 'OK'
+  try:
+    ret = do_import_records(scm_name, master_definition, data_path)
+    detal = 'Created=' + str(ret['count_created']) + ' Updated=' + str(ret['count_updated']) 
+  except Exception as e:
+    exception_msg = str(e)
+    if exception_msg == 'IMPORT_FILE_NOT_FOUND':
+      detail = 'No data file to import'
+    else:
+      status = 'ERR'
+      detail = exception_msg
+
+  result = '[' + status + '] ' + detail
 
   return result
 
