@@ -12,12 +12,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ROOT_DIR + 'libs'))
 import util
 import bsb64
 
-BASE_PATH = '.'
-
-EXTENSION_ENABLED = False
-if EXTENSION_ENABLED:
+try:
   import mdm_ex
+except:
+  pass
 
+BASE_PATH = '.'
 AUTO_INCREMENT = '[auto]'
 
 SYSTEM_COLUMN = [
@@ -735,7 +735,7 @@ def exec_action():
   elif action == 'init':
     init_screen(master_definition)
 
-  elif EXTENSION_ENABLED:
+  elif 'mdm_ex' in sys.modules:
     if action == 'new_delivery':
       mdm_ex.new_delivery(scm_name, master_definition, data_path)
     elif action == 'collect':
