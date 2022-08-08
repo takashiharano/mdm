@@ -155,8 +155,8 @@ def export_data(scm_name, master_definition, data_path):
 
   if output == 'outbound':
     count = len(out_list)
-    odexp_path = get_odexp_path(scm_name)
-    out_path = odexp_path + filename
+    outbound_path = get_outbound_path(scm_name)
+    out_path = outbound_path + filename
     util.write_binary_file(out_path, content)
     util.send_result_json('OK', count)
   else:
@@ -576,25 +576,25 @@ def do_import_records(scm_name, master_definition, data_path, start=2):
   }
   return result
 
-def get_dexp_path(scm_name):
-  path = util.join_path(BASE_PATH, 'scm/') + scm_name + '/dexp/'
+def get_datax_dir_path(scm_name):
+  path = util.join_path(BASE_PATH, 'datax/') + scm_name + '/'
   return path
 
 #----------------------------------------------------------
 def get_import_data_path(scm_name, master_definition):
   master_id = master_definition['id']
-  idexp_path = get_idexp_path(scm_name)
-  import_data_path = idexp_path +  master_id + '.txt'
+  inbound_path = get_inbound_path(scm_name)
+  import_data_path = inbound_path +  master_id + '.txt'
   return import_data_path
 
-def get_idexp_path(scm_name):
-  dexp_path = get_dexp_path(scm_name)
-  path = dexp_path + 'inbound/'
+def get_inbound_path(scm_name):
+  inbound_path = get_datax_dir_path(scm_name)
+  path = inbound_path + 'inbound/'
   return path
 
-def get_odexp_path(scm_name):
-  dexp_path = get_dexp_path(scm_name)
-  path = dexp_path + 'outbound/'
+def get_outbound_path(scm_name):
+  datax_dir_path = get_datax_dir_path(scm_name)
+  path = datax_dir_path + 'outbound/'
   return path
 
 def delete_import_file(import_data_path):
@@ -620,12 +620,12 @@ def get_schema_definitin_path():
   return 'schemas.json'
 
 #----------------------------------------------------------
-def clean_dexp(scm_name):
-  base_dir = get_idexp_path(scm_name)
+def clean_datax_dir(scm_name):
+  base_dir = get_inbound_path(scm_name)
   filename_list = util.list_files(base_dir)
   clean_directory(base_dir, filename_list)
 
-  base_dir = get_odexp_path(scm_name)
+  base_dir = get_outbound_path(scm_name)
   filename_list = util.list_files(base_dir)
   clean_directory(base_dir, filename_list)
 
@@ -699,8 +699,8 @@ def exec_action():
     return
 
   action = util.get_request_param('action', '')
-  if action == 'clean_dexp':
-    clean_dexp(scm_name)
+  if action == 'clean_datax_dir':
+    clean_datax_dir(scm_name)
     return
 
   master_name = util.get_request_param('master', '')

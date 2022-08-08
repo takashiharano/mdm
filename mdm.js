@@ -1193,18 +1193,18 @@ mdm.enableDeliveryFromUpstream = function(f) {
 };
 
 //---------------------------------------------------------
-mdm.cleanDexp = function() {
-  mdm.confirm('Clean Data Exchange Points?', mdm.doCleanDexp);
+mdm.cleanDataxDir = function() {
+  mdm.confirm('Clean Data Exchange Directory?', mdm.doCleanDexp);
 };
 
 mdm.doCleanDexp = function() {
   var startRow = $el('#start-row').value;
   params = null;
-  mdm.callApi('clean_dexp', params, mdm.cleanDexpCb);
+  mdm.callApi('clean_datax_dir', params, mdm.cleanDataxDirCb);
   mdm.loader.show();
 };
 
-mdm.cleanDexpCb = function(xhr, res) {
+mdm.cleanDataxDirCb = function(xhr, res) {
   mdm.loader.hide();
   var msg = res.status;
   if (res.status == 'OK') {
