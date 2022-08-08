@@ -175,8 +175,8 @@ $onReady = function() {
     html += '''</div>
 <div style="margin-top:24px;font-size:16px;">
 '''
-    html += '<img src="./img/folder.png" class="menu-item-img" style="height:16px;"><a href="./scm/' + scm_name + '/dexp/">Browse Data Exchange Points</a>'
-    html += '<span class="pseudo-link" onclick="mdm.cleanDexp();" style="margin-left:8px;color:#00f;font-size:13px;"><img src="./img/delete.png" style="height:16px;" data-tooltip="Clear"></span>'
+    html += '<img src="./img/folder.png" class="menu-item-img" style="height:16px;"><a href="./datax/' + scm_name + '/">Browse Data Exchange Points</a>'
+    html += '<span class="pseudo-link" onclick="mdm.cleanDataxDir();" style="margin-left:8px;color:#00f;font-size:13px;"><img src="./img/delete.png" style="height:16px;" data-tooltip="Clear"></span>'
     html += '<br>'
     html += '''
 </div>
