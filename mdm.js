@@ -619,7 +619,7 @@ mdm.showRecord = function(record, mode) {
   var editing = ((mode == 'new') || (mode == 'edit') || (mode == 'copy-edit'));
 
   var html = '';
-  html += '<div style="position:relative;height:1em;">';
+  html += '<div style="position:relative;height:1em;margin-bottom:10px;">';
 
   if (mdm.deliveryEnable) {
     html += '<span class="pseudo-link"';
@@ -646,10 +646,10 @@ mdm.showRecord = function(record, mode) {
     var lastUpdateDate = parseInt(record['last_update_date']);
     var sCreateDate = util.getDateTimeString(createDate, '%YYYY-%MM-%DD %HH:%mm:%SS');
     var sLastUpdateDate = util.getDateTimeString(lastUpdateDate, '%YYYY-%MM-%DD %HH:%mm:%SS');
-    html += '<span style="font-size:14px;color:#888;">';
+    html += '<div style="display:inline-block;position:relative;height:1em;top:-7px;font-size:14px;color:#888;">';
     html += '<span>Created: ' + sCreateDate + '</span>';
     html += '<span style="margin-left:12px;">Last Updated: ' + sLastUpdateDate+ '</span>';
-    html += '</span>';
+    html += '</div>';
   }
 
   html += '<span style="position:absolute;right:8px;">';
