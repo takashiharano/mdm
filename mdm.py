@@ -475,12 +475,10 @@ def cleanse_data(master_definition, data):
 
     return new_data
 
-
 def is_required_field(col_def):
     if ('pkey' in col_def and col_def['pkey']) or ('required' in col_def and col_def['required']):
         return True
     return False
-
 
 def cleanse_to_date(s):
     if (s == ''):
@@ -532,7 +530,6 @@ def import_records(scm_name, master_definition, data_path):
 
     util.send_result_json(status, result)
 
-
 def do_import_records(scm_name, master_definition, data_path, start=2):
     start = start - 1
     if start < 0:
@@ -580,7 +577,6 @@ def do_import_records(scm_name, master_definition, data_path, start=2):
     }
     return result
 
-
 def get_datax_dir_path(scm_name):
     path = util.join_path(BASE_PATH, 'datax/') + scm_name + '/'
     return path
@@ -592,18 +588,15 @@ def get_import_data_path(scm_name, master_definition):
     import_data_path = inbound_path + master_id + '.txt'
     return import_data_path
 
-
 def get_inbound_path(scm_name):
     inbound_path = get_datax_dir_path(scm_name)
     path = inbound_path + 'inbound/'
     return path
 
-
 def get_outbound_path(scm_name):
     datax_dir_path = get_datax_dir_path(scm_name)
     path = datax_dir_path + 'outbound/'
     return path
-
 
 def delete_import_file(import_data_path):
     util.delete_file(import_data_path)
@@ -612,11 +605,9 @@ def delete_import_file(import_data_path):
 def init_screen(master_definition):
     util.send_result_json('OK', master_definition)
 
-
 def load_master_definition(scm_name, default={}):
     path = get_master_definitin_path(scm_name)
     return util.load_dict(path, default)
-
 
 def get_master_definitin_path(scm_name):
     return util.join_path(BASE_PATH, 'scm/') + scm_name + '/master.json'
@@ -625,7 +616,6 @@ def get_master_definitin_path(scm_name):
 def load_schema_definition_list():
     path = get_schema_definitin_path()
     return util.load_dict(path, {})
-
 
 def get_schema_definitin_path():
     return 'schemas.json'
@@ -641,7 +631,6 @@ def clean_datax_dir(scm_name):
     clean_directory(base_dir, filename_list)
 
     util.send_result_json('OK', None)
-
 
 def clean_directory(base_dir, filename_list):
     for i in range(len(filename_list)):
