@@ -318,6 +318,7 @@ def print_auth_redirect_html():
 <script src="../libs/util.js"></script>
 '''
 
+#    html += '''
 #<script src="../websys/websys.js"></script>
 #<script>
 #$onReady = function() {
@@ -325,6 +326,7 @@ def print_auth_redirect_html():
 #}
 #websys.init('../');
 #</script>
+#'''
 
     heml += '''</head>
 <body>
@@ -344,10 +346,10 @@ def send_html(html):
 
 #----------------------------------------------------------
 def main():
-#  web.on_access()
-#  if not authman.auth(default=False, allow_guest=True):
-#      print_auth_redirect_html()
-#      return
+#    web.on_access()
+#    if not authman.auth(default=False, allow_guest=True):
+#        print_auth_redirect_html()
+#        return
 
     scm_name = util.get_request_param('scm', '')
     master_name = util.get_request_param('master', '')
