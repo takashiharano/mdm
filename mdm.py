@@ -252,7 +252,9 @@ def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True
         if util.match(value, sep):
             value = util.quote_csv_field(value, '"')
 
-        line += sep
+        if include_system_data or i > 0:
+          line += sep
+
         line += value
 
     return line
