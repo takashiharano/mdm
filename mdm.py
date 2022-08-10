@@ -190,7 +190,8 @@ def upload(scm_name, master_definition):
         #filename = item.filename
 
         if content:
-            save_filepath = get_import_data_path(scm_name, master_definition)
+            master_id = master_definition['id']
+            save_filepath = get_import_file_path_to_save(scm_name, master_id)
             util.write_file(save_filepath, content)
             result = 'OK'
         else:
@@ -523,32 +524,74 @@ def import_records(scm_name, master_definition, data_path):
     status = 'OK'
     result = do_import_records(scm_name, master_definition, data_path, start)
     if result['status'] != 'OK':
-        if result['status'] == 'IMPORT_FILE_NOT_FOUND':
-            status = 'OK:IMPORT_FILE_NOT_FOUND'
+        if result['status'] == 'NO_FILE_TO_IMPORT':
+            status = 'OK:NO_FILE_TO_IMPORT'
         else:
             status = result['status']
 
     util.send_result_json(status, result)
 
-def do_import_records(scm_name, master_definition, data_path, start=2):
-    start = start - 1
-    if start < 0:
-        start = 0
+
+# import records in the direcotry
+def do_import_records(scm_name, master_definition, data_path, start):
+    master_id = master_definition['id']
+    file_list = get_import_file_path_list(scm_name, master_id)
+
+    result = {
+        'status': 'OK',
+        'total_count_created': 0,
+        'total_count_updated': 0,
+        'total_count_error': 0,
+        'result_list': []
+    }
+
+    files = len(file_list)
+    if files == 0:
+        result['status'] = 'NO_FILE_TO_IMPORT'
+        return result
+
+    for i in range(files):
+        import_file_name = file_list[i]
+
+        import_ret = import_records_from_one_file(scm_name, master_definition, data_path, import_file_name, start)
+
+        result['result_list'].append(import_ret)
+
+        if import_ret['status'] == 'OK':
+            result['total_count_created'] = result['total_count_created'] + import_ret['count_created']
+            result['total_count_updated'] = result['total_count_updated'] + import_ret['count_updated']
+        else:
+            result['total_count_error'] = result['total_count_error'] + 1
+
+    return result
+
+# import records from a file
+def import_records_from_one_file(scm_name, master_definition, data_path, import_file_name, start):
+    result = {
+        'status': 'OK',
+        'filename': import_file_name,
+        'count_created': 0,
+        'count_updated': 0
+    }
+
+    inbound_path = get_inbound_path(scm_name)
+    import_file_path = util.join_path(inbound_path, import_file_name)
+    if not util.path_exists(import_file_path):
+        result['status'] = 'IMPORT_FILE_NOT_FOUND'
+        return result
 
     data_list = get_data_list(data_path)
 
-    import_data_path = get_import_data_path(scm_name, master_definition)
-    if not util.path_exists(import_data_path):
-        return {
-            'status': 'IMPORT_FILE_NOT_FOUND'
-        }
-
     try:
-        new_data_list = get_data_list(import_data_path)
+        new_data_list = get_data_list(import_file_path)
     except:
         return {
             'status': 'DATA_FILE_READ_ERROR'
         }
+
+    start = start - 1
+    if start < 0:
+        start = 0
 
     count_created = 0
     count_updated = 0
@@ -568,13 +611,10 @@ def do_import_records(scm_name, master_definition, data_path, start=2):
 
     commit(data_path, data_list)
 
-    delete_import_file(import_data_path)
+    util.delete_file(import_file_path)
 
-    result = {
-        'status': 'OK',
-        'count_created': count_created,
-        'count_updated': count_updated
-    }
+    result['count_created'] = count_created
+    result['count_updated'] = count_updated
     return result
 
 def get_datax_dir_path(scm_name):
@@ -582,11 +622,18 @@ def get_datax_dir_path(scm_name):
     return path
 
 # ---------------------------------------------------------
-def get_import_data_path(scm_name, master_definition):
-    master_id = master_definition['id']
+def get_import_file_path_to_save(scm_name, master_id):
     inbound_path = get_inbound_path(scm_name)
-    import_data_path = inbound_path + master_id + '.txt'
-    return import_data_path
+    timestamp = util.get_datetime_str('%Y-%m-%d_%H.%M.%S')
+    filename = master_id + '_' + timestamp + '.upload'
+    path = util.join_path(inbound_path, filename)
+    return path
+
+def get_import_file_path_list(scm_name, master_id):
+    inbound_path = get_inbound_path(scm_name)
+    prefix = '^' + master_id + '_'
+    file_list = util.list_files(inbound_path, prefix)
+    return file_list
 
 def get_inbound_path(scm_name):
     inbound_path = get_datax_dir_path(scm_name)
@@ -597,9 +644,6 @@ def get_outbound_path(scm_name):
     datax_dir_path = get_datax_dir_path(scm_name)
     path = datax_dir_path + 'outbound/'
     return path
-
-def delete_import_file(import_data_path):
-    util.delete_file(import_data_path)
 
 # ---------------------------------------------------------
 def init_screen(master_definition):
@@ -678,19 +722,31 @@ def import_data_batch(scm_name, master_name):
     master_definition['id'] = master_name
     data_path = get_data_path(scm_name, master_name)
 
+    start = 2
+
     status = 'OK'
-    ret = do_import_records(scm_name, master_definition, data_path)
+    ret = do_import_records(scm_name, master_definition, data_path, start)
     if ret['status'] == 'OK':
         detail = 'Created=' + \
-            str(ret['count_created']) + ' Updated=' + str(ret['count_updated'])
+            str(ret['total_count_created']) + ' Updated=' + str(ret['total_count_updated']) + ' Error=' + str(ret['total_count_error'])
     else:
-        if ret['status'] == 'IMPORT_FILE_NOT_FOUND':
+        if ret['status'] == 'NO_FILE_TO_IMPORT':
             detail = 'No data file to import'
         else:
-            status = 'ERR'
             detail = ret['status']
 
     result = '[' + status + '] ' + detail
+
+    result_list = ret['result_list']
+    res_len = len(result_list)
+    if res_len > 0:
+        result = result + ' files='
+        for i in range(res_len):
+            res = result_list[i]
+            filename = res['filename']
+            if i > 0:
+                result = result + ','
+            result = result + '' + filename
 
     return result
 

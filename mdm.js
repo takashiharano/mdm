@@ -291,10 +291,11 @@ mdm.importCb = function(xhr, res) {
   var msg = res.status;
   if (res.status == 'OK') {
     var result = res.body;
-    var createdCount = result['count_created'];
-    var updatedCount = result['count_updated'];
-    msg += ': Created=' + createdCount + ' Updated=' + updatedCount;
-  } else if (res.status == 'OK:IMPORT_FILE_NOT_FOUND') {
+    var createdCount = result['total_count_created'];
+    var updatedCount = result['total_count_updated'];
+    var errorCount = result['total_count_error'];
+    msg += ': Created=' + createdCount + ' Updated=' + updatedCount + ' Error=' + errorCount;
+  } else if (res.status == 'OK:NO_FILE_TO_IMPORT') {
       msg = 'No records to import';
   } else {
     msg = 'Error: ';
