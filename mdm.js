@@ -1,7 +1,5 @@
 var mdm = {};
 
-mdm.GMAP_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-
 mdm.scmId = null;
 mdm.masterId = null;
 mdm.masterDefinition = null;
@@ -737,7 +735,8 @@ mdm.showRecord = function(record, mode) {
     html += '</td>';
     html += '<td>';
 
-    var dispValue = value;
+    value = util.escHtml(value);
+    var dispValue = value;1
     var placeholder = '';
     if (column['type'] == 'NUMBER') {
       dispValue = mdm.formatNumber(value);
@@ -811,7 +810,9 @@ mdm.setAutoIncrement = function(elmId) {
 
 mdm.showMap = function(value) {
   var html = '';
-  html += '<iframe id="iframe-map" width="800" height="300" src="https://www.google.com/maps/embed/v1/place?key=' + mdm.GMAP_KEY + '&q=' + value + '"></iframe>';
+  if (mdm.GMAP_KEY) {
+    html += '<iframe id="iframe-map" width="800" height="300" src="https://www.google.com/maps/embed/v1/place?key=' + mdm.GMAP_KEY + '&q=' + value + '"></iframe>';
+  }
   return html;
 };
 
