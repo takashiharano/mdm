@@ -681,12 +681,16 @@ mdm.showRecord = function(record, mode) {
 
   if (record) {
     var createDate = parseInt(record['create_date']);
+    var createdBy = record['created_by'];
     var lastUpdateDate = parseInt(record['last_update_date']);
+    var updatedBy = record['updated_by'];
     var sCreateDate = util.getDateTimeString(createDate, '%YYYY-%MM-%DD %HH:%mm:%SS');
     var sLastUpdateDate = util.getDateTimeString(lastUpdateDate, '%YYYY-%MM-%DD %HH:%mm:%SS');
     html += '<div style="display:inline-block;position:relative;height:1em;top:-7px;font-size:14px;color:#888;">';
     html += '<span>Created: ' + sCreateDate + '</span>';
-    html += '<span style="margin-left:12px;">Last Updated: ' + sLastUpdateDate+ '</span>';
+    html += '<span style="margin-left:8px;">by: ' + createdBy + '</span>';
+    html += '<span style="margin-left:16px;">Last Updated: ' + sLastUpdateDate+ '</span>';
+    html += '<span style="margin-left:8px;">by: ' + updatedBy + '</span>';
     html += '</div>';
   }
 

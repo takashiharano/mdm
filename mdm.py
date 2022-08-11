@@ -48,6 +48,10 @@ SYSTEM_COLUMN = [
     }
 ]
 
+context = {
+    'user': 'anonymous'
+}
+
 # ---------------------------------------------------------
 def get_pkey_value(master_definition, record):
     pkey_col_name_list = get_pkey_col_name_list(master_definition)
@@ -370,7 +374,8 @@ def create(master_definition, data_path):
 def insert_data(master_definition, data_list, new_data):
     col_defs = master_definition['columns']
 
-    system_data = build_system_column_data(None, 'anonymous')
+    user = context['user']
+    system_data = build_system_column_data(None, user)
     new_data = combine_system_and_master_column_values(system_data, new_data)
 
     target_pkey = get_pkey_value(master_definition, new_data)
@@ -440,8 +445,8 @@ def update_data(master_definition, data_list, data_to_update):
         if pkey == target_pkey:
             # update the data
             data_to_update = cleanse_data(master_definition, data_to_update)
-            system_data = build_system_column_data(
-                existing_record, 'anonymous')
+            user = context['user']
+            system_data = build_system_column_data(existing_record, user)
             new_data = combine_system_and_master_column_values(
                 system_data, data_to_update)
             new_record = build_record_in_text_line(col_defs, new_data)
@@ -748,11 +753,15 @@ def set_base_path(path):
     BASE_PATH = path
 
 # ---------------------------------------------------------
-def exec_batch(batch_name, scm_name, master_name):
+def batch_process(batch_name, scm_name, master_name, user='batch_user'):
+    global context
+    context['user'] = user
+
     if batch_name == 'import_data':
         result = import_data_batch(scm_name, master_name)
     else:
         result = '[ERR] Illegal batch name'
+
     print(result)
 
 # ---------------------------------------------------------
@@ -797,7 +806,10 @@ def import_data_batch(scm_name, master_name):
     return result
 
 # ---------------------------------------------------------
-def exec_action():
+def web_process():
+    global context
+    context['user'] = 'webuser'
+
     scm_name = util.get_request_param('scm', '')
     if scm_name == '':
         util.send_result_json('SCM_ERROR(' + scm_name + ')', None)
