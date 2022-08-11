@@ -195,11 +195,15 @@ def upload(scm_name, master_definition):
     if 'file' in form:
         item = form['file']
         content = item.file
-        #filename = item.filename
+        filename = item.filename
 
         if content:
             master_id = master_definition['id']
             save_filepath = get_import_file_path_to_save(scm_name, master_id)
+
+            file_ext = util.get_file_ext(filename)
+            save_filepath += '.' + file_ext
+
             util.write_file(save_filepath, content)
             result = 'OK'
         else:
@@ -576,6 +580,7 @@ def import_records(scm_name, master_definition, data_path):
 def do_import_records(scm_name, master_definition, data_path, start):
     master_id = master_definition['id']
     file_list = get_import_file_path_list(scm_name, master_id)
+    inbound_path = get_inbound_path(scm_name)
 
     result = {
         'status': 'OK',
@@ -590,16 +595,48 @@ def do_import_records(scm_name, master_definition, data_path, start):
         result['status'] = 'NO_FILE_TO_IMPORT'
         return result
 
+
     for i in range(files):
         import_file_name = file_list[i]
 
+        ret = {
+            'status': '',
+            'filename': import_file_name,
+            'count_created': 0,
+            'count_updated': 0
+        }
+
+        # zip
+        ext = util.get_file_ext(import_file_name)
+        if ext == 'zip':
+            zip_filename = import_file_name
+            zip_file_path = util.join_path(inbound_path, zip_filename)
+            zip_dest_path = inbound_path
+
+            zip_list = util.list_zip(zip_file_path)
+
+            if len(zip_list) == 0:
+                continue
+
+            target_file = zip_list[0]
+            util.unzip(zip_file_path, zip_dest_path, target_file)
+            util.delete_file(zip_file_path)
+
+            import_file_name = target_file
+            import_file_path = util.join_path(inbound_path, import_file_name)
+
+            ret['filename'] += ':' + target_file
+
         import_ret = import_records_from_one_file(scm_name, master_definition, data_path, import_file_name, start)
+        ret['status'] = import_ret['status']
+        ret['count_created'] = import_ret['count_created']
+        ret['count_updated'] = import_ret['count_updated']
 
-        result['result_list'].append(import_ret)
+        result['result_list'].append(ret)
 
-        if import_ret['status'] == 'OK':
-            result['total_count_created'] = result['total_count_created'] + import_ret['count_created']
-            result['total_count_updated'] = result['total_count_updated'] + import_ret['count_updated']
+        if ret['status'] == 'OK':
+            result['total_count_created'] = result['total_count_created'] + ret['count_created']
+            result['total_count_updated'] = result['total_count_updated'] + ret['count_updated']
         else:
             result['total_count_error'] = result['total_count_error'] + 1
 
@@ -609,7 +646,6 @@ def do_import_records(scm_name, master_definition, data_path, start):
 def import_records_from_one_file(scm_name, master_definition, data_path, import_file_name, start):
     result = {
         'status': 'OK',
-        'filename': import_file_name,
         'count_created': 0,
         'count_updated': 0
     }
