@@ -122,6 +122,9 @@ def record_exists(master_definition, data_list, pkey):
 
 # ---------------------------------------------------------
 def export_data(scm_name, master_definition, data_path):
+    timestamp_format = '%Y-%m-%d_%H.%M.%S'
+    line_sep = '\r\n'
+
     separator = util.get_request_param('separator', '')
     if separator == 'comma':
         sep = ','
@@ -147,11 +150,12 @@ def export_data(scm_name, master_definition, data_path):
         line = build_record_in_text_line(col_defs, record, sep, False)
         out_list.append(line)
 
-    text = util.list2text(out_list, line_sep='\r\n')
+    text = util.list2text(out_list, line_sep=line_sep)
     content = bytes(text, 'utf-8')
 
     master_id = master_definition['id']
-    filename = master_id + '.txt'
+    timestamp = util.get_datetime_str(timestamp_format)
+    filename = master_id + '_' + timestamp + '.txt'
 
     if output == 'outbound':
         count = len(out_list)
@@ -223,7 +227,6 @@ def build_record_dict(master_definition, fields, without_sysdata=False):
         col_name = col_def['name']
         if i < len(fields):
             value = fields[field_index]
-            value = util.replace(value, '"(?!")', '')
         else:
             value = ''
         record[col_name] = value
@@ -599,7 +602,17 @@ def import_records_from_one_file(scm_name, master_definition, data_path, import_
     count_updated = 0
     for i in range(start, len(new_data_list)):
         new_data = new_data_list[i]
+
+        # temporary fix
+        # TODO fix quotation handling
+        new_data = util.replace(new_data, '""', '"')
+        new_data = util.replace(new_data, '^"', '')
+        new_data = util.replace(new_data, '"$', '')
+        new_data = util.replace(new_data, '\t"', '\t')
+        new_data = util.replace(new_data, '"\t', '\t')
+
         fields = new_data.split('\t')
+
         new_data = build_record_dict(master_definition, fields, True)
 
         pkey = get_pkey_value(master_definition, new_data)
@@ -625,8 +638,9 @@ def get_datax_dir_path(scm_name):
 
 # ---------------------------------------------------------
 def get_import_file_path_to_save(scm_name, master_id):
+    timestamp_format = '%Y-%m-%d_%H.%M.%S'
     inbound_path = get_inbound_path(scm_name)
-    timestamp = util.get_datetime_str('%Y-%m-%d_%H.%M.%S')
+    timestamp = util.get_datetime_str(timestamp_format)
     filename = master_id + '_' + timestamp + '.upload'
     path = util.join_path(inbound_path, filename)
     return path
