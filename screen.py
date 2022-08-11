@@ -246,6 +246,7 @@ $onReady = function() {
       <span class="pseudo-link" onclick="mdm.reload();"><img src="./img/reload.png" data-tooltip="Reload"></span>
 
       <span style="position:absolute;right:4px;">
+        <span id="multi-delete-button" class="pseudo-link icon-disabled" style="margin-right:16px;" onclick="mdm.deleteMulti();"><img src="./img/delete.png" data-tooltip="Delete"></span>
         <span class="pseudo-link" onclick="mdm.upload();"><img src="./img/upload.png" data-tooltip="Upload"></span>
         <span class="pseudo-link" onclick="mdm.import();"><img src="./img/import.png" data-tooltip="Import"></span>
         <span style="margin-left:10px;">

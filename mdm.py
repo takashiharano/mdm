@@ -494,9 +494,8 @@ def cleanse_to_date(s):
     return v
 
 # ---------------------------------------------------------
-def delete(master_definition, data_path):
+def delete_record(master_definition, data_path, target_pkey):
     status = 'RECORD_NOT_FOUND'
-    target_pkey = util.get_request_param('pkey', '')
     data_list = get_data_list(data_path)
 
     new_list = []
@@ -513,11 +512,42 @@ def delete(master_definition, data_path):
             new_list.append(data)
 
     if status != 'OK':
-        util.send_result_json(status, None)
-        return
+        return status
 
     commit(data_path, new_list)
-    util.send_result_json(status, pkey)
+    return status
+
+# ---------------------------------------------------------
+def delete(master_definition, data_path):
+    target_pkey = util.get_request_param('pkey', '')
+
+    status = delete_record(master_definition, data_path, target_pkey)
+    if status == 'OK':
+        detail = target_pkey
+    else:
+        detail = None
+
+    util.send_result_json(status, detail)
+
+# ---------------------------------------------------------
+def delete_multi(master_definition, data_path):
+    result = {
+        'status': 'OK',
+        'count_deleted': 0,
+        'count_error': 0
+    }
+
+    keys = util.get_request_param('keys', '')
+    target_keys = keys.split(',')
+    for i in range(len(target_keys)):
+        key = target_keys[i]
+        ret = delete_record(master_definition, data_path, key)
+        if (ret == 'OK'):
+            result['count_deleted'] = result['count_deleted'] + 1
+        else:
+            result['count_error'] = result['count_error'] + 1
+
+    util.send_result_json('OK', result)
 
 # ---------------------------------------------------------
 def import_records(scm_name, master_definition, data_path):
@@ -801,6 +831,8 @@ def exec_action():
         update(master_definition, data_path)
     elif action == 'delete':
         delete(master_definition, data_path)
+    elif action == 'delete_multi':
+        delete_multi(master_definition, data_path)
     elif action == 'export':
         export_data(scm_name, master_definition, data_path)
     elif action == 'import':

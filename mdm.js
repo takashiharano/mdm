@@ -8,11 +8,11 @@ mdm.win = null;
 mdm.currentRecord = null;
 mdm.status = '';
 
-$onLoad = function(e) {
+$onLoad = function() {
   mdm.adjustLayout();
 };
 
-$onResize = function(e) {
+$onResize = function() {
   mdm.adjustLayout();
 };
 
@@ -216,6 +216,45 @@ mdm.deleteCb = function(xhr, res) {
   }
   mdm.showInfotip(msg);
 };
+//---------------------------------------------------------
+mdm.deleteMulti = function() {
+  mdm.confirm('Delete the selected item?', mdm.deleteMultiRecordsYesNoCb, null, true);
+};
+
+mdm.deleteMultiRecordsYesNoCb = function() {
+  mdm.deleteMultiRecords();
+};
+
+mdm.deleteMultiRecords = function() {
+  var keys = mdm.getCheckedKeys();
+  var params = {
+    keys: keys
+  };
+  mdm.callApi('delete_multi', params, mdm.deleteMultiRecordsCb);
+  mdm.loader.show();
+};
+
+mdm.deleteMultiRecordsCb = function(xhr, res) {
+  mdm.loader.hide();
+  var msg;
+  if (res.status == 'OK') {
+    var detail = res.body;
+    msg = 'OK: Deleted=' + detail['count_deleted'];
+    if (detail['count_error'] > 0) {
+      msg += ' Error=' + detail['count_error'];
+    }
+    mdm.showRecord(null, 'read');
+    mdm.reloadList();
+  } else {
+    msg = 'Error: ';
+    if (xhr.status != 200) {
+      msg += 'HTTP' + xhr.status
+    } else {
+      msg += res.status
+    }
+  }
+  mdm.showInfotip(msg);
+};
 
 //---------------------------------------------------------
 mdm.cancelEdit = function(pkey) {
@@ -241,7 +280,7 @@ mdm.upload = function() {
   html += '<button onclick="mdm.closeWindow();">Close</button>';
   html += '</div>';
 
-  mdm.win = mdm.openWindow('Upload', 640, 210, html);
+  mdm.win = mdm.openWindow(winTitle, 640, 210, html);
 
   var headHtml = '<link rel="stylesheet" href="./style.css" />';
   var bodyHtml = mdm.buildUploadWindowHtml();
@@ -367,7 +406,7 @@ mdm.exportCb = function(xhr, res) {
   var msg = res.status;
   if (res.status == 'OK') {
     var count = res.body;
-    msg += ': Exported';
+    msg += ': ' + count + ' record(s) has been exported';
   } else {
     msg = 'Error: ';
     if (xhr.status != 200) {
@@ -664,7 +703,7 @@ mdm.showRecord = function(record, mode) {
   html += '</span>';
 
   html += '<span class="pseudo-link"';
-  var clz = ' icon-disabled';
+  clz = ' icon-disabled';
   if (record && (mode == 'read')) {
     clz = '';
     html += ' onclick="mdm.copyEdit();"';
@@ -826,8 +865,8 @@ mdm.save = function() {
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
     var colName = column['name'];
-    var colDispName = column['display_name'];
-    var isPkey = column['pkey'];
+    //var colDispName = column['display_name'];
+    //var isPkey = column['pkey'];
     var value = $el('#input-' + colName).value;
     values[colName] = value;
   }
@@ -855,8 +894,8 @@ mdm.applyEdit = function() {
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
     var colName = column['name'];
-    var colDispName = column['display_name'];
-    var isPkey = column['pkey'];
+    //var colDispName = column['display_name'];
+    //var isPkey = column['pkey'];
     var value = $el('#input-' + colName).value;
     values[colName] = value;
   }
@@ -871,7 +910,7 @@ mdm.applyEdit = function() {
   }
 
   var params = {};
-  for (var k in values) {
+  for (k in values) {
     params[k] = values[k];
   }
 
@@ -890,7 +929,6 @@ mdm.closeDialog = function() {
 //---------------------------------------------------------
 mdm.validateValues = function(values) {
   var hasError = false;
-  var columns = mdm.masterDefinition.columns;
   for (var colName in values) {
     var colDef = mdm.getColumnDefinition(colName);
     var value = values[colName];
@@ -929,16 +967,16 @@ mdm.validate = function(colDef, colName, value) {
   if (colDef['type'] == 'NUMBER') {
     if (value && !util.isNumeric(value)) {
       hasError = true;
-      msg = 'Shuold be a numeric value.';;
+      msg = 'Shuold be a numeric value.';
     }
   }
 
   if (colDef['type'] == 'DATE') {
     if (value) {
-      var v = value.replace(/[-\/]/g, '');
+      var v = value.replace(/[-/]/g, '');
       if (!v.match(/^\d{8}$/)) {
         hasError = true;
-        msg = 'Shuold be date format.';;
+        msg = 'Shuold be date format.';
       }
     }
   }
@@ -980,18 +1018,7 @@ mdm._exportToUpstream = function() {
     return;
   }
 
-  var chkboxes = $el('.item-checkbox');
-  var keys = '';
-  for (var i = 0; i < chkboxes.length; i++) {
-    chkbox = chkboxes[i];
-    if (chkbox.checked) {
-      var key = chkbox.value;
-      if (keys) {
-        keys += ',';
-      }
-      keys += key;
-    }
-  }
+  var keys = mdm.getCheckedKeys();
   username = util.encodeBSB64(username, 1);
   password = util.encodeBSB64(password, 1);
   params = {
@@ -1155,7 +1182,13 @@ mdm.selectAll = function() {
 };
 
 mdm.onCheckboxChenge = function() {
-  mdm.enableExportToUpstream(mdm.isAnyChecked());
+  var checked = mdm.isAnyChecked();
+  mdm.enableExportToUpstream(mdm.isAnyChecked);
+  if (checked) {
+    $el('#multi-delete-button').removeClass('icon-disabled');
+  } else {
+    $el('#multi-delete-button').addClass('icon-disabled');
+  }
 };
 
 mdm.isAllChecked = function() {
@@ -1178,6 +1211,22 @@ mdm.isAnyChecked = function() {
   return false;
 };
 
+mdm.getCheckedKeys = function() {
+  var chkboxes = $el('.item-checkbox');
+  var keys = '';
+  for (var i = 0; i < chkboxes.length; i++) {
+    var chkbox = chkboxes[i];
+    if (chkbox.checked) {
+      var key = chkbox.value;
+      if (keys) {
+        keys += ',';
+      }
+      keys += key;
+    }
+  }
+  return keys;
+};
+
 mdm.enableExportToUpstream = function(f) {
   if (f) {
     $el('#shipping-icon').setStyle('opacity', '1');
@@ -1196,11 +1245,10 @@ mdm.enableDeliveryFromUpstream = function(f) {
 
 //---------------------------------------------------------
 mdm.cleanDataxDir = function() {
-  mdm.confirm('Clean Data Exchange Directory?', mdm.doCleanDexp);
+  mdm.confirm('Clean Data Exchange Directory?', mdm.doCleanDataxDir);
 };
 
-mdm.doCleanDexp = function() {
-  var startRow = $el('#start-row').value;
+mdm.doCleanDataxDir = function() {
   params = null;
   mdm.callApi('clean_datax_dir', params, mdm.cleanDataxDirCb);
   mdm.loader.show();
