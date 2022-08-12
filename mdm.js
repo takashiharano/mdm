@@ -128,7 +128,7 @@ mdm.drawTable = function(records) {
   var html = mdm.buildTableHeader();
 
   if (!records) {
-    html += '<tr><td colspan="5"><span class="progdot">Loading</span></td></tr>';
+    html += '<tr><td colspan="5"><span class="loading progdot">Loading</span></td></tr>';
   } else if (records.length == 0) {
     html += '<tr><td colspan="5">No data</td></tr>';
   } else {

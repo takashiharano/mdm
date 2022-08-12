@@ -127,6 +127,10 @@ td.item-list {
   opacity: 0.5;
 }
 
+.loading {
+  font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
+}
+
 #wrapper {
   display: table;
   position: relabsolute;
