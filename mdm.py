@@ -364,11 +364,12 @@ def create(master_definition, data_path):
 
     data_list = get_data_list(data_path)
 
-    # try:
-    new_list = insert_data(master_definition, data_list, new_data)
-    commit(data_path, new_list)
-    # except Exception as e:
-    #  status = 'CREATE_ERROR_' + str(e)
+    ret = insert_data(master_definition, data_list, new_data)
+    if util.typename(ret) == 'str':
+        status = ret
+    else:
+        new_list = ret
+        commit(data_path, new_list)
 
     pkey = get_pkey_value(master_definition, new_data)
 
@@ -400,7 +401,7 @@ def insert_data(master_definition, data_list, new_data):
         pkey = get_pkey_value(master_definition, record)
 
         if pkey == target_pkey:
-            raise Exception('ALREADY_EXISTS(' + pkey + ')')
+            return 'ALREADY_EXISTS'
         else:
             new_list.append(data)
 
@@ -692,7 +693,11 @@ def import_records_from_one_file(scm_name, master_definition, data_path, import_
             data_list = update_data(master_definition, data_list, new_data)
             count_updated = count_updated + 1
         else:
-            data_list = insert_data(master_definition, data_list, new_data)
+            ret = insert_data(master_definition, data_list, new_data)
+            if util.typename(ret) == 'str':
+                return ret
+
+            data_list = ret
             count_created = count_created + 1
 
     commit(data_path, data_list)

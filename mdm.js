@@ -185,12 +185,21 @@ mdm.editCb = function(xhr, res) {
   } else {
     msg = 'Error: ';
     if (xhr.status != 200) {
-      msg += 'HTTP' + xhr.status
+      msg += 'HTTP' + xhr.status;
     } else {
-      msg += res.status
+      msg += status;
     }
   }
+
+  if (res.status == 'ALREADY_EXISTS') {
+    msg = 'The record already exists';
+  }
+
   mdm.showInfotip(msg);
+
+  if (res.status == 'ALREADY_EXISTS') {
+    mdm.showRecord(mdm.currentRecord, 'new');
+  }
 };
 
 mdm.onReloadAfterEditCompleted = function() {
@@ -702,6 +711,10 @@ mdm.requestShowRecordCb = function(xhr, res) {
 
 mdm.showRecord = function(record, mode) {
   var pkey = mdm.getPkeyValue(record);
+  if (mode == 'new') {
+    pkey = null;
+  }
+
   mdm.currentRecord = record;
   mdm.status = mode;
   if (mode == 'copy-edit') {
@@ -732,7 +745,7 @@ mdm.showRecord = function(record, mode) {
     html += '<span class="progdot">Loading</span>';
   }
 
-  if (record && (mode != 'copy-edit')) {
+  if (record && ((mode == 'read') || (mode == 'edit'))) {
     var createDate = parseInt(record['create_date']);
     var createdBy = record['created_by'];
     var lastUpdateDate = parseInt(record['last_update_date']);
