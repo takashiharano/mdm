@@ -732,7 +732,7 @@ mdm.showRecord = function(record, mode) {
     html += '<span class="progdot">Loading</span>';
   }
 
-  if (record) {
+  if (record && (mode != 'copy-edit')) {
     var createDate = parseInt(record['create_date']);
     var createdBy = record['created_by'];
     var lastUpdateDate = parseInt(record['last_update_date']);
