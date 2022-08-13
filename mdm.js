@@ -243,7 +243,9 @@ mdm.deleteCb = function(xhr, res) {
 };
 //---------------------------------------------------------
 mdm.deleteMulti = function() {
-  mdm.confirm('Delete the selected item?', mdm.deleteMultiRecordsYesNoCb, null, true);
+  if (mdm.isAnyChecked()) {
+    mdm.confirm('Delete the selected item?', mdm.deleteMultiRecordsYesNoCb, null, true);
+  }
 };
 
 mdm.deleteMultiRecordsYesNoCb = function() {
