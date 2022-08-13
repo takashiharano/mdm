@@ -5,8 +5,15 @@ mdm.masterId = null;
 mdm.masterDefinition = null;
 mdm.win = null;
 
+mdm.records = null;
 mdm.currentRecord = null;
 mdm.status = '';
+
+mdm.listStatus = {
+  sortIdx: 0,
+  sortType: 1,
+  selectedKey: null
+};
 
 $onLoad = function() {
   mdm.adjustLayout();
@@ -66,6 +73,7 @@ mdm.reload = function() {
 };
 
 mdm.reloadList = function(cb) {
+  mdm.listStatus.selectedKey = null;
   mdm.getRecords(cb);
 };
 
@@ -82,7 +90,8 @@ mdm.getRecords = function(chainedCb) {
 mdm.getRecordsCb = function(xhr, res, req) {
   mdm.loader.hide();
   if (res.status == 'OK') {
-    mdm.drawTable(res.body);
+    mdm.records = res.body;
+    mdm.drawTable(mdm.records, mdm.listStatus.sortIdx, mdm.listStatus.sortType);
     if (req.chainedCb) req.chainedCb();
   } else {
     var msg = 'Error: ';
@@ -124,14 +133,21 @@ mdm.getRecordCb = function(xhr, res) {
   }
 };
 
-mdm.drawTable = function(records) {
-  var html = mdm.buildTableHeader();
+mdm.drawTable = function(records, sortIdx, sortType) {
+  var columns = mdm.masterDefinition.columns;
+  var html = mdm.buildTableHeader(columns, sortIdx, sortType);
 
   if (!records) {
     html += '<tr><td colspan="5"><span class="loading progdot">Loading</span></td></tr>';
   } else if (records.length == 0) {
     html += '<tr><td colspan="5">No data</td></tr>';
   } else {
+    records = util.copyObject(records);
+    if (sortType > 0) {
+      var sortColName = mdm.masterDefinition.columns[sortIdx].name;
+      var desc = (sortType == 2);
+      records = util.sortObject(records, sortColName, desc, true);
+    }
     html += mdm.buildTableList(records);
   }
 
@@ -550,8 +566,7 @@ mdm.getPkeyValues = function(record) {
 };
 
 //---------------------------------------------------------
-mdm.clearValidationMessage = function() {
-  var columns = mdm.masterDefinition.columns;
+mdm.clearValidationMessage = function(columns) {
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
     var colName = column['name'];
@@ -560,9 +575,7 @@ mdm.clearValidationMessage = function() {
 };
 
 //---------------------------------------------------------
-mdm.buildTableHeader = function() {
-  var columns = mdm.masterDefinition.columns;
-
+mdm.buildTableHeader = function(columns, sortIdx, sortType) {
   var html = '<table id="list-table" class="list-table item-list">';
   html += '<tr class="item-list">';
 
@@ -574,11 +587,50 @@ mdm.buildTableHeader = function() {
     var length = column['length'];
     var width = length / 2;
     if (width > 10) width = 10;
-    html += '<th class="item-list" style="min-width:' + width + 'em;">' + displayName + '</th>';
+
+    var sortAscClz = '';
+    var sortDescClz = '';
+    var nextSortType = 1;
+    if (i == sortIdx) {
+      if (sortType == 1) {
+        sortAscClz = 'sort-active';
+      } else if (sortType == 2) {
+        sortDescClz = 'sort-active';
+      }
+      nextSortType = sortType + 1;
+    }
+
+    var sortButton = '<span class="sort-button" ';
+    sortButton += ' onclick="mdm.sortRecordList(' + i + ', ' + nextSortType + ');"';
+    sortButton += '>';
+    sortButton += '<span';
+    if (sortAscClz) {
+       sortButton += ' class="' + sortAscClz + '"';
+    }
+    sortButton += '>▲</span>';
+    sortButton += '<br>';
+    sortButton += '<span';
+    if (sortDescClz) {
+       sortButton += ' class="' + sortDescClz + '"';
+    }
+    sortButton += '>▼</span>';
+    sortButton += '</span>';
+
+    html += '<th class="item-list" style="min-width:' + width + 'em;"><span>' + displayName + '</span> ' + sortButton + '</th>';
   }
 
   html += '</tr>';
   return html;
+};
+
+mdm.sortRecordList = function(sortIdx, sortType) {
+  if (sortType > 2) {
+    sortType = 0;
+  }
+  mdm.listStatus.sortIdx = sortIdx;
+  mdm.listStatus.sortType = sortType;
+  mdm.drawTable(mdm.records, sortIdx, sortType);
+  mdm.selectRecord(mdm.listStatus.selectedKey, true);
 };
 
 mdm.selectRecord = function(pkey, force) {
@@ -596,6 +648,7 @@ mdm.selectRecord = function(pkey, force) {
 
   $el('.list-tr').removeClass('row-selected');
   $el('#tr-' + pkey).addClass('row-selected');
+  mdm.listStatus.selectedKey = pkey;
   mdm.requestShowRecord(pkey);
 };
 
@@ -882,7 +935,7 @@ mdm.save = function() {
     }
   }
 
-  mdm.clearValidationMessage();
+  mdm.clearValidationMessage(columns);
   var hasError = mdm.validateValues(values);
   if (hasError) {
     return;

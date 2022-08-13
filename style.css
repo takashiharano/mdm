@@ -131,6 +131,19 @@ td.item-list {
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
 }
 
+.sort-button {
+  display: inline-block;
+  line-height: 1em;
+  color: #ccc;
+  font-size: 10px;
+}
+.sort-button:hover {
+  cursor: pointer;
+}
+.sort-active {
+  color: #555;
+}
+
 #wrapper {
   display: table;
   position: relabsolute;
