@@ -594,6 +594,9 @@ mdm.buildTableHeader = function(columns, sortIdx, sortType) {
 
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
+    if (column['list_hidden']) {
+      continue;
+    }
     var displayName = column['display_name'];
     var length = column['length'];
     var width = length / 2;
@@ -685,6 +688,9 @@ mdm.buildTableList = function(records) {
     html += '<td class="item-list' + tdClass + '"><input type="checkbox" class="item-checkbox" value="' + pkey + '" onchange="mdm.onCheckboxChenge();"></td>';
     for (var j = 0; j < columns.length; j++) {
       var column = columns[j];
+      if (column['list_hidden']) {
+        continue;
+      }
       var colName = column['name'];
       var value = record[colName];
       var tdClass = '';

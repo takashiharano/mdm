@@ -58,7 +58,8 @@
         "name": "mail",
         "display_name": "Mail",
         "type": "VARCHAR",
-        "length": 256
+        "length": 256,
+        "list_hidden": true
       }
     ]
   }
