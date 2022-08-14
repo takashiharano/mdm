@@ -146,7 +146,7 @@ def export_data(scm_name, master_definition, data_path):
     out_list = []
     data_list = get_data_list(data_path)
 
-    header = build_csv_header(master_definition, sep)
+    header = build_csv_header(master_definition, sep, quote_mode=1)
     out_list.append(header)
 
     for i in range(len(data_list)):
@@ -154,7 +154,7 @@ def export_data(scm_name, master_definition, data_path):
         fields = data.split('\t')
         record = build_record_dict(master_definition, fields)
         record = cleanse_data_for_export(col_defs, record)
-        line = build_record_in_text_line(col_defs, record, sep, False, True)
+        line = build_record_in_text_line(col_defs, record, sep, False, quote_mode=1)
         out_list.append(line)
 
     text = util.list2text(out_list, line_sep=line_sep)
@@ -245,7 +245,8 @@ def build_record_dict(master_definition, fields, without_sysdata=False):
     return record
 
 # ---------------------------------------------------------
-def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True, should_quote=False):
+# quote_mode: 0=never / 1=auto / 2=force
+def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True, quote_mode=1):
     line = ''
     if include_system_data:
         line += str(data['create_date'])
@@ -263,7 +264,7 @@ def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True
         col_name = col_def['name']
         value = data[col_name]
 
-        if should_quote or util.match(value, sep):
+        if quote_mode == 2 or (quote_mode == 1 and util.match(value, '"') or util.match(value, sep)):
             value = util.quote_csv_field(value, '"')
 
         if include_system_data or i > 0:
@@ -274,14 +275,14 @@ def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True
     return line
 
 # ---------------------------------------------------------
-def build_csv_header(master_definition, sep):
+def build_csv_header(master_definition, sep, quote_mode=1):
     col_defs = master_definition['columns']
     s = ''
     for i in range(len(col_defs)):
         col_def = col_defs[i]
         col_name = col_def['display_name']
-        #if util.match(col_name, sep):
-        #    value = util.quote_csv_field(col_name, '"')
+        if quote_mode == 2 or (quote_mode == 1 and util.match(col_name, '"') or util.match(col_name, sep)):
+            col_name = util.quote_csv_field(col_name, '"')
         if i > 0:
             s += sep
         s += col_name
@@ -409,7 +410,7 @@ def insert_data(master_definition, data_list, new_data):
             new_list.append(data)
 
     new_data = cleanse_data(master_definition, new_data)
-    new_record = build_record_in_text_line(col_defs, new_data)
+    new_record = build_record_in_text_line(col_defs, new_data, quote_mode=0)
     new_list.append(new_record)
     return new_list
 
@@ -457,7 +458,7 @@ def update_data(master_definition, data_list, data_to_update):
             system_data = build_system_column_data(existing_record, user)
             new_data = combine_system_and_master_column_values(
                 system_data, data_to_update)
-            new_record = build_record_in_text_line(col_defs, new_data)
+            new_record = build_record_in_text_line(col_defs, new_data, quote_mode=0)
             new_list.append(new_record)
         else:
             new_list.append(data)
@@ -673,20 +674,20 @@ def import_records_from_one_file(scm_name, master_definition, data_path, import_
     if start < 0:
         start = 0
 
+    sep = '\t'
+
     count_created = 0
     count_updated = 0
     for i in range(start, len(new_data_list)):
         new_data = new_data_list[i]
 
-        # temporary fix
-        # TODO fix quotation handling
-        new_data = util.replace(new_data, '""', '"')
-        new_data = util.replace(new_data, '^"', '')
-        new_data = util.replace(new_data, '"$', '')
-        new_data = util.replace(new_data, '\t"', '\t')
-        new_data = util.replace(new_data, '"\t', '\t')
-
-        fields = new_data.split('\t')
+        fields = new_data.split(sep)
+        for i in range(len(fields)):
+            field = fields[i]
+            field = util.replace(field, '""', '"')
+            field = util.replace(field, '^"', '')
+            field = util.replace(field, '"$', '')
+            fields[i] = field
 
         new_data = build_record_dict(master_definition, fields, True)
 
