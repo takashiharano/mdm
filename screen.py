@@ -313,7 +313,6 @@ def get_html_header(title, scm_name=None):
         html += '<link rel="stylesheet" href="./scm/' + scm_name + '/style.css" />'
 
     html += '''
-<script src="https://debugjs.net/debug.js"></script>
 <script src="../libs/util.js"></script>
 <script src="./mdm.js"></script>
 <script src="./_config.js"></script>
