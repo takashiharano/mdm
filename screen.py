@@ -89,7 +89,7 @@ $onReady = function() {
 
 <div style="margin-top:24px;font-size:16px;">
 '''
-    html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./config.cgi">Shema config</a><br>'
+    html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./?action=config">Shema config</a><br>'
     html += '''
 </div>
 </div>
@@ -183,7 +183,7 @@ $onReady = function() {
 
 <div style="margin-top:24px;font-size:16px;">
 '''
-    html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./config.cgi?scm=' + scm_name + '">Master config</a><br>'
+    html += '<img src="./img/settings.png" class="menu-item-img" style="height:16px;"><a href="./?action=config&scm=' + scm_name + '">Master config</a><br>'
     html += '''
 </div>
 
@@ -199,12 +199,17 @@ $onReady = function() {
 def print_master_html(scm_name, master_name):
     title = 'Master (' + scm_name + ':' + master_name + ')'
 
-    all_master_definition = mdm.load_master_definition(scm_name)
-    master_definition = all_master_definition[master_name]
-
+    master_definition = None
     delivery_enable = 'false'
-    if 'delivery' in master_definition and master_definition['delivery']:
-        delivery_enable = 'true'
+
+    try:
+        all_master_definition = mdm.load_master_definition(scm_name)
+        master_definition = all_master_definition[master_name]
+
+        if 'delivery' in master_definition and master_definition['delivery']:
+            delivery_enable = 'true'
+    except:
+        pass
 
     html = get_html_header(title, scm_name)
     html += '''
@@ -227,8 +232,15 @@ $onReady = function() {
 }
 </style>
 </head>
-<body>
-<div id="fader">
+<body>'''
+
+    if master_definition is None:
+        html += '<span style="color:#e22;font-size:16px;">MASTER_SCHEMA_LOAD_ERROR</span>'
+        html += '</body></html>'
+        send_html(html)
+        return
+
+    html += '''<div id="fader">
 <div id="wrapper">
   <div id="content">
     <div style="margin-bottom:20px;">
@@ -301,6 +313,7 @@ def get_html_header(title, scm_name=None):
         html += '<link rel="stylesheet" href="./scm/' + scm_name + '/style.css" />'
 
     html += '''
+<script src="https://debugjs.net/debug.js"></script>
 <script src="../libs/util.js"></script>
 <script src="./mdm.js"></script>
 <script src="./_config.js"></script>
@@ -347,14 +360,11 @@ def send_html(html):
     util.send_response('html', html, headers=headers)
 
 #----------------------------------------------------------
-def main():
+def web_process(scm_name, master_name):
 #    web.on_access()
 #    if not authman.auth(default=False, allow_guest=True):
 #        print_auth_redirect_html()
 #        return
-
-    scm_name = util.get_request_param('scm', '')
-    master_name = util.get_request_param('master', '')
 
     if scm_name == '':
         print_top_page_html()

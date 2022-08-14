@@ -12,6 +12,9 @@ ROOT_DIR = '../'
 sys.path.append(os.path.join(os.path.dirname(__file__), ROOT_DIR + 'libs'))
 import util
 
+import screen
+import screen_config
+
 try:
     import mdm_ex
 except:
@@ -846,33 +849,27 @@ def import_data_batch(scm_name, master_name):
 
     return result
 
-# ---------------------------------------------------------
-def web_process():
-    global context
-    context['user'] = 'webuser'
+def exec_action(action, scm_name, master_name):
+    master_definition = None
+    all_master_definition = load_master_definition(scm_name)
 
-    scm_name = util.get_request_param('scm', '')
+    if master_name != '':
+        if master_name in all_master_definition:
+            master_definition = all_master_definition[master_name]
+            master_definition['id'] = master_name
+        else:
+            util.send_result_json('NO_SUCH_MASTER(' + master_name + ')', None)
+            return
+
+    data_path = get_data_path(scm_name, master_name)
+
+    if action.startswith('config'):
+        screen_config.web_process(action, scm_name)
+        return
+
     if scm_name == '':
         util.send_result_json('SCM_ERROR(' + scm_name + ')', None)
         return
-
-    action = util.get_request_param('action', '')
-    if action == 'clean_datax_dir':
-        clean_datax_dir(scm_name)
-        return
-
-    master_name = util.get_request_param('master', '')
-
-    all_master_definition = load_master_definition(scm_name)
-    master_definition = None
-
-    if not master_name in all_master_definition:
-        util.send_result_json('NO_SUCH_MASTER(' + master_name + ')', None)
-        return
-
-    master_definition = all_master_definition[master_name]
-    master_definition['id'] = master_name
-    data_path = get_data_path(scm_name, master_name)
 
     if action == 'get':
         get_record(master_definition, data_path)
@@ -892,6 +889,9 @@ def web_process():
         import_records(scm_name, master_definition, data_path)
     elif action == 'upload':
         upload(scm_name, master_definition)
+    elif action == 'clean_datax_dir':
+        clean_datax_dir(scm_name)
+        return
     elif action == 'init':
         init_screen(master_definition)
 
@@ -905,3 +905,17 @@ def web_process():
 
     else:
         util.send_result_json('NO_SUCH_ACTION(' + action + ')', None)
+
+# ---------------------------------------------------------
+def web_process():
+    global context
+    context['user'] = 'webuser'
+
+    scm_name = util.get_request_param('scm', '')
+    action = util.get_request_param('action', '')
+    master_name = util.get_request_param('master', '')
+
+    if action == '':
+        screen.web_process(scm_name, master_name)
+    else:
+        exec_action(action, scm_name, master_name)

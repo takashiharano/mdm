@@ -318,7 +318,7 @@ mdm.upload = function() {
 
 mdm.buildUploadWindowHtml = function() {
   var html = '';
-  html += '<form action="api.cgi" method="POST" enctype="multipart/form-data">';
+  html += '<form action="./" method="POST" enctype="multipart/form-data">';
   html += '<input type="hidden" name="scm" value="' + mdm.scmId + '">';
   html += '<input type="hidden" name="master" value="' + mdm.masterId + '">';
   html += '<input type="hidden" name="action" value="upload">';
@@ -424,7 +424,7 @@ mdm.startExport = function() {
     mdm.callApi('export', params, mdm.exportCb);
   } else {
     params.action = 'export';
-    util.postSubmit('./api.cgi', params);
+    util.postSubmit('./', params);
   }
 };
 
@@ -522,7 +522,7 @@ mdm.callApi = function(action, params, cb) {
   }
 
   var req = {
-    url: 'api.cgi',
+    url: './',
     method: 'POST',
     data: param,
     cb: cb
@@ -1415,7 +1415,7 @@ mdm.config.init = function(scmId) {
   util.addKeyHandler(27, 'down', mdm.onKeyDownEsc);
   util.addKeyHandler(83, 'down', mdm.config.onKeyDownS, {ctrl: true});
   var params = null;
-  mdm.config.callApi('getdef', params, mdm.config.initCb);
+  mdm.config.callApi('config_getdef', params, mdm.config.initCb);
   mdm.adjustLayout();
   mdm.loader.show();
 };
@@ -1447,7 +1447,7 @@ mdm.config.applyEdit = function() {
   var params = {
     text: b64text
   };
-  mdm.config.callApi('save', params, mdm.config.editCb);
+  mdm.config.callApi('config_save', params, mdm.config.editCb);
   mdm.loader.show();
 };
 
@@ -1474,7 +1474,7 @@ mdm.config.callApi = function(action, params, cb) {
   }
 
   var req = {
-    url: 'config.cgi',
+    url: './',
     method: 'POST',
     data: param,
     cb: cb

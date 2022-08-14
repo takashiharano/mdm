@@ -1,11 +1,11 @@
 #!python
 #!/usr/bin/python3
 
-import screen
+import mdm
 
 #----------------------------------------------------------
 def main():
-    screen.main()
+    mdm.web_process()
 
 if __name__ == '__main__':
     main()
