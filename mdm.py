@@ -154,7 +154,7 @@ def export_data(scm_name, master_definition, data_path):
         fields = data.split('\t')
         record = build_record_dict(master_definition, fields)
         record = cleanse_data_for_export(col_defs, record)
-        line = build_record_in_text_line(col_defs, record, sep, False)
+        line = build_record_in_text_line(col_defs, record, sep, False, True)
         out_list.append(line)
 
     text = util.list2text(out_list, line_sep=line_sep)
@@ -245,7 +245,7 @@ def build_record_dict(master_definition, fields, without_sysdata=False):
     return record
 
 # ---------------------------------------------------------
-def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True):
+def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True, should_quote=False):
     line = ''
     if include_system_data:
         line += str(data['create_date'])
@@ -263,7 +263,7 @@ def build_record_in_text_line(col_defs, data, sep='\t', include_system_data=True
         col_name = col_def['name']
         value = data[col_name]
 
-        if util.match(value, sep):
+        if should_quote or util.match(value, sep):
             value = util.quote_csv_field(value, '"')
 
         if include_system_data or i > 0:

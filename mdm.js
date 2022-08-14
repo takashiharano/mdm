@@ -685,7 +685,7 @@ mdm.buildTableList = function(records) {
       trClass = 'row-odd';
     }
     html += '<tr id="tr-' + pkey + '" class="item-list list-tr ' + trClass +'">';
-    html += '<td class="item-list' + tdClass + '"><input type="checkbox" class="item-checkbox" value="' + pkey + '" onchange="mdm.onCheckboxChenge();"></td>';
+    html += '<td class="item-list' + tdClass + '"><input type="checkbox" class="item-checkbox" value="' + util.escHtml(pkey) + '" onchange="mdm.onCheckboxChenge();"></td>';
     for (var j = 0; j < columns.length; j++) {
       var column = columns[j];
       if (column['list_hidden']) {
