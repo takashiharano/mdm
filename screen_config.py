@@ -63,7 +63,7 @@ $onReady = function() {
 </body>
 </html>
 '''
-    util.send_response('html', html)
+    util.send_html(html)
 
 #----------------------------------------------------------
 def get_definition(scm_name):

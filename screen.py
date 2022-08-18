@@ -113,7 +113,7 @@ api.cgi?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=get&pkey=&lt;PKEY&gt;
 </body>
 </html>
 '''
-    send_html(html)
+    util.send_html(html)
 
 #----------------------------------------------------------
 def print_master_menu_html(scm_name):
@@ -193,7 +193,7 @@ $onReady = function() {
 </body>
 </html>
 '''
-    send_html(html)
+    util.send_html(html)
 
 #----------------------------------------------------------
 def print_master_html(scm_name, master_name):
@@ -237,7 +237,7 @@ $onReady = function() {
     if master_definition is None:
         html += '<span style="color:#e22;font-size:16px;">MASTER_SCHEMA_LOAD_ERROR</span>'
         html += '</body></html>'
-        send_html(html)
+        util.send_html(html)
         return
 
     html += '''<div id="fader">
@@ -294,7 +294,7 @@ $onReady = function() {
 </html>
 '''
 
-    send_html(html)
+    util.send_html(html)
 
 #----------------------------------------------------------
 def get_html_header(title, scm_name=None):
@@ -313,6 +313,7 @@ def get_html_header(title, scm_name=None):
         html += '<link rel="stylesheet" href="./scm/' + scm_name + '/style.css" />'
 
     html += '''
+<script src="https://debugjs.net/debug.js"></script>
 <script src="../libs/util.js"></script>
 <script src="./mdm.js"></script>
 <script src="./_config.js"></script>
@@ -347,16 +348,7 @@ def print_auth_redirect_html():
 </body>
 </html>
 '''
-    send_html(html)
-
-#----------------------------------------------------------
-def send_html(html):
-    headers = [
-        {
-            'Cache-Control': 'no-cache'
-        }
-    ]
-    util.send_response('html', html, headers=headers)
+    util.send_html(html)
 
 #----------------------------------------------------------
 def web_process(scm_name, master_name):
