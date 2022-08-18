@@ -3,7 +3,7 @@ import os
 
 BASE_PATH = '../'
 
-sys.path.append(os.path.join(os.path.dirname(__file__), BASE_PATH))
+sys.path.append(os.path.join(os.path.dirname(__file__), BASE_PATH + 'py'))
 import mdm
 
 def get_arg(n, default=''):

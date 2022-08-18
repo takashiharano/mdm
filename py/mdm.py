@@ -8,7 +8,7 @@
 import os
 import sys
 
-ROOT_DIR = '../'
+ROOT_DIR = '../../'
 sys.path.append(os.path.join(os.path.dirname(__file__), ROOT_DIR + 'libs'))
 import util
 
@@ -827,8 +827,8 @@ def import_data_batch(scm_name, master_name):
     status = 'OK'
     ret = do_import_records(scm_name, master_definition, data_path, start)
     if ret['status'] == 'OK':
-        detail = 'Created=' + \
-            str(ret['total_count_created']) + ' Updated=' + str(ret['total_count_updated']) + ' Error=' + str(ret['total_count_error'])
+        detail = 'Created=' + str(ret['total_count_created']) + ' Updated=' + str(ret['total_count_updated']) + ' Error=' + str(ret['total_count_error'])
+
     else:
         if ret['status'] == 'NO_FILE_TO_IMPORT':
             detail = 'No data file to import'
