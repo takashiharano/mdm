@@ -99,13 +99,13 @@ $onReady = function() {
 APIs:
 
 [Export]
-api.cgi?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=export
+./?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=export
 
 [Import]
-api.cgi?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=import&start=&lt;LINE&gt;
+./?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=import&start=&lt;LINE&gt;
 
 [Get record]
-api.cgi?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=get&pkey=&lt;PKEY&gt;
+./?scm=&lt;SCHEMA&gt;&master=&lt;MASTER&gt;&action=get&pkey=&lt;PKEY&gt;
 </pre>
 </div>
 </body>
