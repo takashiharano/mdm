@@ -341,7 +341,7 @@ def print_auth_redirect_html():
 #</script>
 #'''
 
-    heml += '''</head>
+    html += '''</head>
 <body>
 </body>
 </html>
