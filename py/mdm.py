@@ -339,14 +339,14 @@ def tsv_to_system_column_dict(tsv_fields):
 
 # ---------------------------------------------------------
 def build_system_column_data(data=None, user='', data_status=None):
-    now = util.get_timestamp_in_millis()
+    now = util.get_unixtime_millis()
     if data is None:
         data = {}
         data['create_date'] = now
         data['created_by'] = user
         data['last_update_date'] = now
         data['updated_by'] = user
-        data['data_status'] = '1'
+        data['data_status'] = '0'
     else:
         data['last_update_date'] = now
         data['updated_by'] = user
