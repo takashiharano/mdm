@@ -483,7 +483,7 @@ def cleanse_data(master_definition, data):
 
         if is_required_field(col_def):
             if value == '':
-                raise Exception('REQUIRED_FIELD_IS_EMPTY')
+                raise Exception('REQUIRED_FIELD_IS_EMPTY:' + col_name)
 
         if col_name in data:
             if col_def['type'] == 'DATE':
