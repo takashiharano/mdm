@@ -215,7 +215,7 @@ def upload(scm_name, master_definition):
     else:
         result = 'NO_FILE_FIELD'
 
-    util.send_response('text', result)
+    util.send_response(result)
 
 # ---------------------------------------------------------
 def build_record_dict(master_definition, fields, without_sysdata=False):
