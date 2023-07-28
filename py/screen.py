@@ -7,9 +7,8 @@ import util
 
 import mdm
 
-#util.append_system_path(__file__, ROOT_DIR + 'websys/bin')
-#import web
-#import authman
+util.append_system_path(__file__, ROOT_DIR + 'websys/bin')
+import web
 
 #----------------------------------------------------------
 def print_top_page_html():
@@ -331,15 +330,15 @@ def print_auth_redirect_html():
 <script src="../libs/util.js"></script>
 '''
 
-#    html += '''
-#<script src="../websys/websys.js"></script>
-#<script>
-#$onReady = function() {
-#  websys.authRedirection(location.href);
-#}
-#websys.init('../');
-#</script>
-#'''
+    html += '''
+<script src="../websys/websys.js"></script>
+<script>
+$onReady = function() {
+  websys.authRedirection(location.href);
+}
+websys.init('../');
+</script>
+'''
 
     html += '''</head>
 <body>
@@ -350,10 +349,10 @@ def print_auth_redirect_html():
 
 #----------------------------------------------------------
 def web_process(scm_name, master_name):
-#    web.on_access()
-#    if not authman.auth(default=False, allow_guest=True):
-#        print_auth_redirect_html()
-#        return
+    context = web.on_access()
+    if not context.is_authorized():
+        print_auth_redirect_html()
+        return
 
     if scm_name == '':
         print_top_page_html()
