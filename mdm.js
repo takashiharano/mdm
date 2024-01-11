@@ -146,7 +146,7 @@ mdm.drawTable = function(records, sortIdx, sortType) {
     if (sortType > 0) {
       var sortColName = mdm.masterDefinition.columns[sortIdx].name;
       var desc = (sortType == 2);
-      records = util.sortObject(records, sortColName, desc, true);
+      records = util.sortObjectList(records, sortColName, desc, true);
     }
     html += mdm.buildTableList(records);
   }
