@@ -171,7 +171,7 @@ def export_data(scm_name, master_definition, data_path):
         util.write_binary_file(out_path, content)
         util.send_result_json('OK', count)
     else:
-        util.send_binary(content, filename)
+        util.send_as_file(content, filename)
 
 # ---------------------------
 def cleanse_data_for_export(col_defs, record):
