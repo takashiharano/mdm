@@ -7,7 +7,7 @@ import util
 
 import mdm
 
-util.append_system_path(__file__, ROOT_DIR + 'websys/bin')
+util.append_system_path(__file__, ROOT_DIR + 'websys')
 import web
 
 #----------------------------------------------------------
