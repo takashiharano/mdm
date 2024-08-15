@@ -8,7 +8,7 @@ import util
 import mdm
 
 util.append_system_path(__file__, ROOT_DIR + 'websys')
-import web
+import websys
 
 #----------------------------------------------------------
 def print_top_page_html():
@@ -349,7 +349,7 @@ websys.init('../');
 
 #----------------------------------------------------------
 def web_process(scm_name, master_name):
-    context = web.on_access()
+    context = websys.on_access()
     if not context.is_authorized():
         print_auth_redirect_html()
         return
