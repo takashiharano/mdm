@@ -336,7 +336,7 @@ def print_auth_redirect_html():
 $onReady = function() {
   websys.authRedirection(location.href);
 }
-websys.init('../');
+websys.init('mdm', '../');
 </script>
 '''
 
