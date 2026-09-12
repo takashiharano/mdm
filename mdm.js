@@ -1097,8 +1097,8 @@ mdm._exportToUpstream = function() {
   }
 
   var keys = mdm.getCheckedKeys();
-  username = util.encodeBSB64(username, 1);
-  password = util.encodeBSB64(password, 1);
+  username = util.bsb64.encode(username, 1);
+  password = util.bsb64.encode(password, 1);
   params = {
     keys: keys,
     username: username,
@@ -1159,8 +1159,8 @@ mdm._collectFromUpstream = function(pkey) {
     return;
   }
 
-  username = util.encodeBSB64(username, 1);
-  password = util.encodeBSB64(password, 1);
+  username = util.bsb64.encode(username, 1);
+  password = util.bsb64.encode(password, 1);
   params = {
     pkey: pkey,
     username: username,
@@ -1224,8 +1224,8 @@ mdm._deliveryToUpstream = function(pkey) {
     return;
   }
 
-  username = util.encodeBSB64(username, 1);
-  password = util.encodeBSB64(password, 1);
+  username = util.bsb64.encode(username, 1);
+  password = util.bsb64.encode(password, 1);
   params = {
     pkey: pkey,
     username: username,
